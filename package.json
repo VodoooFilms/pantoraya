@@ -1,0 +1,71 @@
+{
+  "name": "pantoraya",
+  "version": "1.2.0",
+  "description": "Conversor de video a MP4 para macOS",
+  "main": "src/main/main.js",
+  "author": "Pantoraya",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "check": "node --check src/main/main.js && node --check src/preload/preload.js && node --check src/renderer/app.js",
+    "build": "npm run check && electron-builder --mac dmg --arm64",
+    "build:dir": "npm run check && electron-builder --mac dir --arm64"
+  },
+  "build": {
+    "appId": "com.pantoraya.converter",
+    "productName": "Pantoraya",
+    "artifactName": "Pantoraya-${version}-${arch}.${ext}",
+    "directories": {
+      "output": "dist"
+    },
+    "afterPack": "scripts/after-pack.js",
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "node_modules/@ffmpeg-installer/darwin-arm64/ffmpeg",
+        "to": "ffmpeg/ffmpeg"
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.video",
+      "icon": "assets/icons/icon.icns",
+      "minimumSystemVersion": "11.0",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["arm64"]
+        }
+      ],
+      "identity": null,
+      "extendInfo": {
+        "CFBundleName": "Pantoraya",
+        "CFBundleDisplayName": "Pantoraya",
+        "NSHumanReadableCopyright": "Copyright © 2026 Pantoraya"
+      }
+    },
+    "dmg": {
+      "title": "Pantoraya ${version}",
+      "icon": "assets/icons/icon.icns",
+      "iconSize": 128,
+      "window": {
+        "width": 540,
+        "height": 380
+      },
+      "contents": [
+        { "x": 150, "y": 190, "type": "file" },
+        { "x": 390, "y": 190, "type": "link", "path": "/Applications" }
+      ]
+    }
+  },
+  "devDependencies": {
+    "electron": "^31.7.7",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0"
+  }
+}
