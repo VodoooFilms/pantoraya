@@ -62,6 +62,14 @@ body {
 
 button { font: inherit; }
 
+.window-drag-region {
+  position: fixed;
+  inset: 0 0 auto;
+  height: 40px;
+  z-index: 10;
+  -webkit-app-region: drag;
+}
+
 .shell {
   min-height: 100vh;
   padding: 46px 22px 18px;
@@ -83,6 +91,7 @@ button { font: inherit; }
 }
 
 .separator { opacity: .55; }
+.brand { color: #a78bfa; }
 
 .theme-toggle {
   width: 24px;
