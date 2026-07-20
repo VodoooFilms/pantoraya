@@ -1,10 +1,19 @@
 {
   "name": "pantoraya",
   "version": "1.2.0",
-  "description": "Conversor de video a MP4 para macOS",
+  "description": "Private, offline MP4, MP3 and JPG converter for macOS",
   "main": "src/main/main.js",
   "author": "Pantoraya",
   "license": "MIT",
+  "homepage": "https://github.com/VodoooFilms/pantoraya#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VodoooFilms/pantoraya.git"
+  },
+  "bugs": {
+    "url": "https://github.com/VodoooFilms/pantoraya/issues"
+  },
+  "keywords": ["macos", "ffmpeg", "mp4", "mp3", "jpg", "offline", "converter"],
   "scripts": {
     "start": "electron .",
     "check": "node --check src/main/main.js && node --check src/preload/preload.js && node --check src/renderer/app.js",
@@ -28,6 +37,14 @@
       {
         "from": "node_modules/@ffmpeg-installer/darwin-arm64/ffmpeg",
         "to": "ffmpeg/ffmpeg"
+      },
+      {
+        "from": "assets/locales/en.lproj/InfoPlist.strings",
+        "to": "en.lproj/InfoPlist.strings"
+      },
+      {
+        "from": "assets/locales/es.lproj/InfoPlist.strings",
+        "to": "es.lproj/InfoPlist.strings"
       }
     ],
     "mac": {
@@ -44,6 +61,9 @@
       "extendInfo": {
         "CFBundleName": "Pantoraya",
         "CFBundleDisplayName": "Pantoraya",
+        "NSDesktopFolderUsageDescription": "Pantoraya necesita acceder a tu Escritorio para abrir archivos, mostrar miniaturas y guardar conversiones.",
+        "NSDocumentsFolderUsageDescription": "Pantoraya necesita acceder a Documentos para abrir archivos, mostrar miniaturas y guardar conversiones.",
+        "NSDownloadsFolderUsageDescription": "Pantoraya necesita acceder a Descargas para abrir archivos, mostrar miniaturas y guardar conversiones.",
         "NSHumanReadableCopyright": "Copyright © 2026 Pantoraya"
       }
     },

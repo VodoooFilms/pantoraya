@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'; script-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'">
   <title>Pantoraya</title>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -11,7 +11,12 @@
   <div class="window-drag-region" aria-hidden="true"></div>
   <main class="shell">
     <header class="masthead">
-      <span class="brand">Pantoraya</span><span class="separator">·</span><span>Mp4 converter</span><span class="separator">·</span><span>V.01.</span>
+      <span class="brand">Pantoraya</span>
+      <nav class="converter-tabs" id="converterTabs" role="tablist" aria-label="Tipo de conversión">
+        <button class="converter-tab active" id="mp4Tab" data-converter="mp4" role="tab" aria-selected="true">MP4 converter</button>
+        <button class="converter-tab" id="mp3Tab" data-converter="mp3" role="tab" aria-selected="false">MP3 converter</button>
+        <button class="converter-tab" id="jpgTab" data-converter="jpg" role="tab" aria-selected="false">JPG</button>
+      </nav>
       <button class="theme-toggle" id="themeToggle" aria-label="Cambiar a modo claro" title="Cambiar a modo claro">
         <svg class="sun-icon" viewBox="0 0 20 20" aria-hidden="true">
           <circle cx="10" cy="10" r="3.2"></circle>
@@ -21,6 +26,7 @@
           <path d="M16.2 12.8A6.7 6.7 0 0 1 7.2 3.8a6.7 6.7 0 1 0 9 9Z"></path>
         </svg>
       </button>
+      <button class="language-toggle" id="languageToggle" aria-label="Cambiar a inglés" title="Cambiar a inglés">ES</button>
     </header>
 
     <section class="drop-zone" id="dropZone" tabindex="0" role="button" aria-label="Seleccionar un video">
@@ -29,23 +35,17 @@
     </section>
 
     <section class="file-card hidden" id="fileCard">
-      <div class="file-mark" aria-hidden="true"></div>
+      <img class="file-thumbnail hidden" id="fileThumbnail" alt="">
+      <div class="file-mark" id="fileMark" data-format="MP4" aria-hidden="true"></div>
       <div class="file-copy">
         <strong id="fileName"></strong>
-        <span id="fileSize"></span>
       </div>
+      <div class="file-size"><small id="originalLabel">Original</small><strong id="fileSize"></strong></div>
       <button class="icon-button" id="removeButton" aria-label="Quitar video">×</button>
     </section>
 
-    <section class="profiles" aria-label="Calidad del video">
-      <div class="profile-grid" id="profileGrid">
-        <button class="profile active" data-profile="quality">
-          <strong>Original</strong><small>Misma resolución</small>
-        </button>
-        <button class="profile" data-profile="light">
-          <strong>Liviano</strong><small>Menor tamaño · 720p</small>
-        </button>
-      </div>
+    <section class="profiles" id="profilesSection" aria-label="Calidad del video">
+      <div class="profile-grid" id="profileGrid"></div>
     </section>
 
     <section class="progress hidden" id="progressPanel" aria-live="polite">
@@ -56,14 +56,14 @@
 
     <section class="result hidden" id="resultPanel" aria-live="polite">
       <span class="check">✓</span>
-      <div><strong>Listo</strong><span id="resultDetails"></span></div>
+      <div><strong id="resultTitle">Listo</strong><span id="resultDetails"></span></div>
     </section>
 
     <p class="error hidden" id="errorMessage" role="alert"></p>
 
     <div class="actions">
       <button class="secondary hidden" id="cancelButton">Cancelar</button>
-      <button class="primary" id="convertButton" disabled>Convertir</button>
+      <button class="primary" id="convertButton" disabled>Convertir a MP4</button>
       <button class="primary success hidden" id="revealButton">Mostrar en Finder</button>
     </div>
   </main>
