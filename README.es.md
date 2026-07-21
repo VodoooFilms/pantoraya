@@ -90,6 +90,15 @@ La compilación necesita Xcode Command Line Tools y `pkg-config`. Pantoraya comp
 
 Las operaciones PDF se registran en `src/main/converters/pdf.js`, dejando el módulo preparado para futuras funciones de unir, dividir, rotar y convertir imágenes sin acoplarlas a la interfaz. macOS usa PDFKit, AppKit y Quick Look; Windows usa pdf-lib y la automatización local de Microsoft Word.
 
+## Colaboradores
+
+<a href="https://github.com/ayarblasco-create">
+  <img src="https://avatars.githubusercontent.com/u/307704723?v=4" width="64" alt="ayarblasco-create"><br>
+  <sub><strong>@ayarblasco-create</strong></sub>
+</a>
+
+Ideas de producto y UX
+
 ## Tecnología
 
 - Electron

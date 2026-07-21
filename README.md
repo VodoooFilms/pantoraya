@@ -136,6 +136,15 @@ Pantoraya compila un motor FFmpeg estático desde fuentes oficiales verificadas 
 
 Pantoraya builds a static FFmpeg engine from checksum-verified upstream sources. PDF operations are modular so future merge, split, rotation, and image-conversion tools can be added cleanly.
 
+## Colaboradores / Contributors
+
+<a href="https://github.com/ayarblasco-create">
+  <img src="https://avatars.githubusercontent.com/u/307704723?v=4" width="64" alt="ayarblasco-create"><br>
+  <sub><strong>@ayarblasco-create</strong></sub>
+</a>
+
+Ideas de producto y UX · Product and UX ideas
+
 ## Tecnología / Technology
 
 - Electron
