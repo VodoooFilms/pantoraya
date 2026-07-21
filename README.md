@@ -1,96 +1,138 @@
 <p align="center">
-  <img src="assets/icons/icon.png" width="112" alt="Pantoraya icon">
+  <img src="assets/icons/icon.png" width="112" alt="Pantoraya icon / Ícono de Pantoraya">
 </p>
 
 <h1 align="center">Pantoraya</h1>
 
 <p align="center">
-  Private file conversion for macOS.<br>
-  Video, audio, images, and PDFs — processed locally, never uploaded.
+  Conversión privada de archivos para macOS · Private file conversion for macOS<br>
+  Video, audio, imágenes y PDF procesados localmente · Video, audio, images, and PDFs processed locally
 </p>
 
 <p align="center">
-  <a href="README.es.md">Español</a> ·
-  <a href="https://github.com/VodoooFilms/pantoraya/releases/latest">Download</a> ·
-  <a href="LICENSE">MIT License</a>
+  <a href="#español">Español</a> ·
+  <a href="#english">English</a> ·
+  <a href="https://github.com/VodoooFilms/pantoraya/releases/latest">Descargar / Download</a> ·
+  <a href="LICENSE">MIT</a>
 </p>
 
-## What is Pantoraya?
+## Español
 
-Pantoraya is a small, free, and open-source file converter designed for macOS. Drop a file into the app and Pantoraya automatically chooses the right workspace: MP4 for video, MP3 for audio, JPG for images, or PDF for PDF compression and Word document conversion.
+Pantoraya es un conversor gratuito, pequeño y de código abierto para macOS. Arrastra un archivo y la aplicación seleccionará automáticamente el espacio correcto: MP4 para video, MP3 para audio, JPG para imágenes o PDF para comprimir PDFs y convertir documentos.
 
-The app is deliberately focused. There are no accounts, subscriptions, uploads, ads, or complicated export panels. Its conversion engines run entirely on your Mac. Media results are saved next to their source; PDF results use a native Save As dialog.
+Todo se procesa de forma privada en tu Mac. No hay cuentas, suscripciones, publicidad, analítica ni cargas a la nube.
 
-## Highlights
+### Funciones
 
-- Automatic video, audio, image, and PDF detection
-- MP4 conversion with high-quality and lightweight 720p modes
+- Conversión MP4 en alta calidad o versión liviana de hasta 720p
+- Conversión MP3 y extracción de audio desde video a 320 o 128 kbps
+- Compresión JPG conservando las dimensiones o reduciendo a un máximo de 1280 px
+- Compresión PDF nativa en alta calidad o versión liviana
+- Conversión de DOC, DOCX, TXT, RTF y ODT a PDF
+- Detección automática del tipo de archivo
+- Miniaturas proporcionales sin deformación
+- Peso original y estimación del resultado en MB
+- Progreso en tiempo real y sonido sutil al finalizar
+- Temas claro y oscuro
+- Interfaz completa en español e inglés
+
+### Formatos compatibles
+
+| Espacio | Entrada | Salida | Modos |
+| --- | --- | --- | --- |
+| MP4 | MOV, MP4, M4V, AVI, MKV, WEBM | MP4 H.264 + AAC | Alta calidad · Liviana 720p |
+| MP3 | MP3, WAV, M4A, AAC, FLAC, OGG, OPUS, WMA, AIFF y video | MP3 | 320 kbps · 128 kbps |
+| JPG | JPG, JPEG, PNG, WEBP, BMP, TIFF | JPG | Dimensiones originales · Liviana 1280 px |
+| PDF | PDF, DOC, DOCX, TXT, RTF, ODT | PDF optimizado o convertido | Alta calidad · Liviana |
+
+### Instalar
+
+Pantoraya es compatible con Macs Apple Silicon que ejecuten macOS 13.4 o posterior.
+
+1. Descarga el DMG desde [GitHub Releases](https://github.com/VodoooFilms/pantoraya/releases/latest).
+2. Abre el DMG y arrastra Pantoraya a Aplicaciones.
+3. En el primer inicio, permite el acceso solicitado a Escritorio, Documentos y Descargas.
+
+Las compilaciones comunitarias no están notarizadas. Si macOS bloquea el primer inicio, haz clic derecho sobre Pantoraya y selecciona **Abrir**.
+
+También está disponible una [edición independiente del README en español](README.es.md).
+
+---
+
+## English
+
+Pantoraya is a small, free, open-source file converter for macOS. Drop a file into the app and it automatically chooses the correct workspace: MP4 for video, MP3 for audio, JPG for images, or PDF for PDF compression and document conversion.
+
+Everything is processed privately on your Mac. There are no accounts, subscriptions, ads, analytics, or cloud uploads.
+
+### Features
+
+- High-quality or lightweight 720p MP4 conversion
 - MP3 conversion and audio extraction from video at 320 or 128 kbps
-- JPG compression with original-size and lightweight 1280 px modes
-- Native PDF compression with high-quality and lightweight modes
-- DOC, DOCX, TXT, RTF, and ODT conversion to PDF inside the same PDF workspace
-- Estimated output size before conversion
-- Proportional file thumbnails without stretching
+- JPG compression at original dimensions or a lightweight 1280 px maximum
+- Native PDF compression in high-quality or lightweight mode
+- DOC, DOCX, TXT, RTF, and ODT to PDF conversion
+- Automatic file-type detection
+- Proportional thumbnails without stretching
+- Original and estimated output sizes displayed in MB
 - Real-time progress and a subtle completion sound
 - Light and dark themes
-- English and Spanish interface
-- Fully offline operation
+- Complete English and Spanish interface
 
-## Supported formats
+### Supported formats
 
 | Workspace | Input | Output | Modes |
 | --- | --- | --- | --- |
 | MP4 | MOV, MP4, M4V, AVI, MKV, WEBM | H.264 + AAC MP4 | High quality · Lightweight 720p |
-| MP3 | MP3, WAV, M4A, AAC, FLAC, OGG, OPUS, WMA, AIFF, plus video files | MP3 | 320 kbps · 128 kbps |
+| MP3 | MP3, WAV, M4A, AAC, FLAC, OGG, OPUS, WMA, AIFF, and video | MP3 | 320 kbps · 128 kbps |
 | JPG | JPG, JPEG, PNG, WEBP, BMP, TIFF | JPG | Original dimensions · Lightweight 1280 px |
-| PDF | PDF, DOC, DOCX, TXT, RTF, ODT | Optimized or converted PDF | High quality · Lightweight for PDF; direct document conversion |
+| PDF | PDF, DOC, DOCX, TXT, RTF, ODT | Optimized or converted PDF | High quality · Lightweight |
 
-## Download and install
+### Install
 
-Pantoraya currently supports Apple Silicon Macs running macOS 13.4 or later.
+Pantoraya supports Apple Silicon Macs running macOS 13.4 or later.
 
-1. Download the latest DMG from [GitHub Releases](https://github.com/VodoooFilms/pantoraya/releases/latest).
+1. Download the DMG from [GitHub Releases](https://github.com/VodoooFilms/pantoraya/releases/latest).
 2. Open the DMG and drag Pantoraya into Applications.
-3. On first launch, macOS may request access to Desktop, Documents, and Downloads so Pantoraya can read files, create thumbnails, and save conversions.
+3. On first launch, allow the requested access to Desktop, Documents, and Downloads.
 
-Current community builds are not notarized. If macOS blocks the first launch, right-click Pantoraya and choose **Open**.
+Community builds are not notarized. If macOS blocks the first launch, right-click Pantoraya and choose **Open**.
 
-## Privacy
+---
 
-Pantoraya does not upload files or require an internet connection. Conversion, metadata inspection, thumbnails, and size estimates happen locally. The app does not include accounts, analytics, or advertising.
-
-## Development
+## Desarrollo / Development
 
 ```bash
 npm install
 npm start
 ```
 
-Create an Apple Silicon DMG:
+Crear el DMG para Apple Silicon / Build the Apple Silicon DMG:
 
 ```bash
+brew install pkgconf
 npm run build
 ```
 
-The installer is written to `dist/`.
+Pantoraya compila un motor FFmpeg estático desde fuentes oficiales verificadas por checksum. Las operaciones PDF están separadas en módulos para admitir futuras herramientas de unión, división, rotación y conversión de imágenes.
 
-Building requires Xcode Command Line Tools and `pkg-config`. Pantoraya builds its own checksum-verified, static FFmpeg engine from upstream sources, so the first build takes a few minutes. Install the small build prerequisite with `brew install pkgconf`.
+Pantoraya builds a static FFmpeg engine from checksum-verified upstream sources. PDF operations are modular so future merge, split, rotation, and image-conversion tools can be added cleanly.
 
-PDF operations are registered in `src/main/converters/pdf.js`, keeping the module ready for future merge, split, rotation, and image tools without coupling them to the interface. Word previews use macOS Quick Look to preserve tables, images, styling, and page breaks; TXT, RTF, and ODT use the native AppKit helper.
-
-## Technology
+## Tecnología / Technology
 
 - Electron
-- FFmpeg
-- H.264 and AAC for MP4
-- LAME MP3
-- MJPEG for JPG output
-- Apple PDFKit and AppKit for native PDF and document processing
+- FFmpeg, x264, LAME
+- H.264 + AAC, MP3 and MJPEG
+- Apple PDFKit, AppKit and Quick Look
 
-## Contributing
+## Contribuir / Contributing
 
-Issues and pull requests are welcome. Please describe the input format, selected mode, macOS version, and expected result when reporting conversion problems.
+Los issues y pull requests son bienvenidos. Incluye el formato de entrada, modo seleccionado, versión de macOS y resultado esperado.
 
-## License
+Issues and pull requests are welcome. Include the input format, selected mode, macOS version, and expected result.
 
-Pantoraya's application source is released under the [MIT License](LICENSE). The separate bundled FFmpeg executable and its linked libraries retain their GPL/LGPL licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
+## Licencia / License
+
+El código de Pantoraya está disponible bajo la [licencia MIT](LICENSE). FFmpeg y sus bibliotecas conservan sus licencias GPL/LGPL; consulta los [avisos de terceros](THIRD_PARTY_NOTICES.md).
+
+Pantoraya's application source is available under the [MIT License](LICENSE). FFmpeg and its libraries retain their GPL/LGPL licenses; see the [third-party notices](THIRD_PARTY_NOTICES.md).
