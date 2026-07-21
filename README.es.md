@@ -47,6 +47,10 @@ La aplicación mantiene un enfoque deliberadamente sencillo. No hay cuentas, sus
 | JPG | JPG, JPEG, PNG, WEBP, BMP, TIFF | JPG | Dimensiones originales · Liviana 1280 px |
 | PDF | PDF, JPG, JPEG, DOC, DOCX, TXT, RTF, ODT | PDF optimizado o convertido | Alta calidad · Liviana para PDF; conversión directa de imágenes y documentos |
 
+## Cómo añadir subtítulos SRT
+
+La opción SRT está disponible tanto en macOS como en Windows. Selecciona el espacio **MP4** y carga un archivo de video; entonces aparecerá **+ Añadir subtítulos SRT (opcional)**. Selecciona o arrastra un archivo `.srt` y convierte el video. Pantoraya incorpora los subtítulos como una pista opcional dentro del MP4, por lo que puedes activarla o desactivarla desde el reproductor.
+
 ## Descargar e instalar
 
 Pantoraya es compatible con Windows 10/11 de 64 bits y con Macs Apple Silicon que ejecuten macOS 13.4 o posterior.

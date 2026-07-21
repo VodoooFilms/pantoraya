@@ -47,6 +47,10 @@ Todo se procesa de forma privada en tu computadora. No hay cuentas, suscripcione
 | JPG | JPG, JPEG, PNG, WEBP, BMP, TIFF | JPG | Dimensiones originales · Liviana 1280 px |
 | PDF | PDF, JPG, JPEG, DOC, DOCX, TXT, RTF, ODT | PDF optimizado o convertido | Alta calidad · Liviana; conversión directa de imágenes y documentos |
 
+### Cómo añadir subtítulos SRT
+
+La opción SRT está disponible tanto en macOS como en Windows. Selecciona el espacio **MP4** y carga un archivo de video; entonces aparecerá **+ Añadir subtítulos SRT (opcional)**. Selecciona o arrastra un archivo `.srt` y convierte el video. Pantoraya incorpora los subtítulos como una pista opcional dentro del MP4, por lo que puedes activarla o desactivarla desde el reproductor.
+
 ### Instalar
 
 Pantoraya es compatible con Windows 10/11 de 64 bits y con Macs Apple Silicon que ejecuten macOS 13.4 o posterior.
@@ -95,6 +99,10 @@ Everything is processed privately on your computer. There are no accounts, subsc
 | MP3 | MP3, WAV, M4A, AAC, FLAC, OGG, OPUS, WMA, AIFF, and video | MP3 | 320 kbps · 128 kbps |
 | JPG | JPG, JPEG, PNG, WEBP, BMP, TIFF | JPG | Original dimensions · Lightweight 1280 px |
 | PDF | PDF, JPG, JPEG, DOC, DOCX, TXT, RTF, ODT | Optimized or converted PDF | High quality · Lightweight; direct image and document conversion |
+
+### How to add SRT subtitles
+
+SRT support is available on both macOS and Windows. Select the **MP4** workspace and load a video file; **+ Add SRT subtitles (optional)** will then appear. Select or drop an `.srt` file and convert the video. Pantoraya embeds the subtitles as an optional MP4 track, so you can turn them on or off in your media player.
 
 ### Install
 
