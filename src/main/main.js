@@ -4,7 +4,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { pathToFileURL } = require('url');
-const { keepSmallestPdf, startPdfTool } = require('./converters/pdf');
+const { compressPdfOnWindows, convertJpegToPdf, keepSmallestPdf, startPdfTool } = require('./converters/pdf');
 const { convertWordToPdf } = require('./converters/document');
 
 let mainWindow = null;
@@ -14,22 +14,22 @@ const temporaryOutputs = new Set();
 
 const TEXT = {
   es: {
-    about: 'Acerca de Pantoraya', aboutCredit: 'Pantoraya es un conversor gratuito y de código abierto para macOS. Convierte video a MP4, extrae y comprime audio en MP3, optimiza imágenes JPG, reduce archivos PDF y convierte documentos a PDF. Todo ocurre de forma privada y local en tu Mac, sin cuentas, anuncios ni cargas a la nube.', hide: 'Ocultar Pantoraya', hideOthers: 'Ocultar otras', unhide: 'Mostrar todo', quit: 'Salir de Pantoraya',
+    about: 'Acerca de Pantoraya', aboutCredit: 'Pantoraya es un conversor gratuito y de código abierto para macOS y Windows. Convierte video a MP4, extrae y comprime audio en MP3, optimiza imágenes JPG, reduce archivos PDF y convierte documentos a PDF. Todo ocurre de forma privada y local, sin cuentas, anuncios ni cargas a la nube.', hide: 'Ocultar Pantoraya', hideOthers: 'Ocultar otras', unhide: 'Mostrar todo', quit: 'Salir de Pantoraya',
     edit: 'Edición', undo: 'Deshacer', redo: 'Rehacer', cut: 'Cortar', copy: 'Copiar', paste: 'Pegar', selectAll: 'Seleccionar todo',
     window: 'Ventana', minimize: 'Minimizar', zoom: 'Zoom', front: 'Traer todo al frente',
     selectTitle: 'Selecciona un video, audio, imagen, PDF o documento', compatible: 'Archivos compatibles', videos: 'Videos', audio: 'Audio', images: 'Imágenes', pdfs: 'PDF y documentos',
     unsupported: 'El archivo no tiene un formato compatible.', active: 'Ya hay una conversión en curso.', missing: 'No se encontró un archivo compatible.',
     invalidProfile: 'Perfil de compresión no válido.', ffmpegMissing: 'Pantoraya no encontró su motor FFmpeg. Reinstala la aplicación.',
-    quality: 'Alta calidad', light: 'Liviana', converting: 'Convirtiendo', pdfCompressing: 'Comprimiendo PDF', docConverting: 'Convirtiendo documento a PDF', pdfHelperMissing: 'No se encontró el módulo PDF. Reinstala Pantoraya.', pdfFailed: 'No se pudo procesar el documento.', pdfLocked: 'Los PDF protegidos con contraseña todavía no son compatibles.', startError: 'No se pudo iniciar FFmpeg', cancelled: 'Conversión cancelada.', ffmpegExit: 'FFmpeg terminó con código'
+    quality: 'Alta calidad', light: 'Liviana', converting: 'Convirtiendo', pdfCompressing: 'Comprimiendo PDF', docConverting: 'Convirtiendo documento a PDF', imageConverting: 'Convirtiendo JPG a PDF', pdfHelperMissing: 'No se encontró el módulo PDF. Reinstala Pantoraya.', pdfFailed: 'No se pudo procesar el documento.', documentEngineMissing: 'Para convertir documentos en Windows se necesita Microsoft Word instalado.', pdfLocked: 'Los PDF protegidos con contraseña todavía no son compatibles.', startError: 'No se pudo iniciar FFmpeg', cancelled: 'Conversión cancelada.', ffmpegExit: 'FFmpeg terminó con código'
   },
   en: {
-    about: 'About Pantoraya', aboutCredit: 'Pantoraya is a free, open-source converter for macOS. It converts video to MP4, extracts and compresses audio as MP3, optimizes JPG images, reduces PDF file sizes, and converts documents to PDF. Everything happens privately and locally on your Mac, with no accounts, ads, or cloud uploads.', hide: 'Hide Pantoraya', hideOthers: 'Hide Others', unhide: 'Show All', quit: 'Quit Pantoraya',
+    about: 'About Pantoraya', aboutCredit: 'Pantoraya is a free, open-source converter for macOS and Windows. It converts video to MP4, extracts and compresses audio as MP3, optimizes JPG images, reduces PDF file sizes, and converts documents to PDF. Everything happens privately and locally, with no accounts, ads, or cloud uploads.', hide: 'Hide Pantoraya', hideOthers: 'Hide Others', unhide: 'Show All', quit: 'Quit Pantoraya',
     edit: 'Edit', undo: 'Undo', redo: 'Redo', cut: 'Cut', copy: 'Copy', paste: 'Paste', selectAll: 'Select All',
     window: 'Window', minimize: 'Minimize', zoom: 'Zoom', front: 'Bring All to Front',
     selectTitle: 'Select a video, audio file, image, PDF, or document', compatible: 'Compatible files', videos: 'Videos', audio: 'Audio', images: 'Images', pdfs: 'PDF and documents',
     unsupported: 'The file format is not supported.', active: 'A conversion is already in progress.', missing: 'No compatible file was found.',
     invalidProfile: 'Invalid compression profile.', ffmpegMissing: 'Pantoraya could not find its FFmpeg engine. Reinstall the application.',
-    quality: 'High quality', light: 'Lightweight', converting: 'Converting', pdfCompressing: 'Compressing PDF', docConverting: 'Converting document to PDF', pdfHelperMissing: 'The PDF module is missing. Reinstall Pantoraya.', pdfFailed: 'The document could not be processed.', pdfLocked: 'Password-protected PDFs are not supported yet.', startError: 'Could not start FFmpeg', cancelled: 'Conversion cancelled.', ffmpegExit: 'FFmpeg exited with code'
+    quality: 'High quality', light: 'Lightweight', converting: 'Converting', pdfCompressing: 'Compressing PDF', docConverting: 'Converting document to PDF', imageConverting: 'Converting JPG to PDF', pdfHelperMissing: 'The PDF module is missing. Reinstall Pantoraya.', pdfFailed: 'The document could not be processed.', documentEngineMissing: 'Microsoft Word must be installed to convert documents on Windows.', pdfLocked: 'Password-protected PDFs are not supported yet.', startError: 'Could not start FFmpeg', cancelled: 'Conversion cancelled.', ffmpegExit: 'FFmpeg exited with code'
   }
 };
 
@@ -40,6 +40,8 @@ function t(key) {
 const VIDEO_EXTENSIONS = new Set(['.mov', '.mp4', '.m4v', '.avi', '.mkv', '.webm']);
 const AUDIO_EXTENSIONS = new Set(['.mp3', '.wav', '.m4a', '.aac', '.flac', '.ogg', '.opus', '.wma', '.aif', '.aiff']);
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tif', '.tiff']);
+const PDF_IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg']);
+const SUBTITLE_EXTENSIONS = new Set(['.srt']);
 const PDF_EXTENSIONS = new Set(['.pdf']);
 const DOCUMENT_EXTENSIONS = new Set(['.doc', '.docx', '.txt', '.rtf', '.odt']);
 const ALL_EXTENSIONS = new Set([...VIDEO_EXTENSIONS, ...AUDIO_EXTENSIONS, ...IMAGE_EXTENSIONS, ...PDF_EXTENSIONS, ...DOCUMENT_EXTENSIONS]);
@@ -96,7 +98,7 @@ const CONVERTERS = {
     }
   },
   pdf: {
-    inputExtensions: new Set([...PDF_EXTENSIONS, ...DOCUMENT_EXTENSIONS]),
+    inputExtensions: new Set([...PDF_EXTENSIONS, ...DOCUMENT_EXTENSIONS, ...PDF_IMAGE_EXTENSIONS]),
     outputExtension: '.pdf',
     engine: 'pdfkit',
     profiles: {
@@ -113,15 +115,22 @@ const CONVERTERS = {
       document: {
         suffix: { es: '_pdf', en: '_pdf' },
         helperProfile: 'document'
+      },
+      image: {
+        suffix: { es: '_pdf', en: '_pdf' },
+        helperProfile: 'image'
       }
     }
   }
 };
 
 function getFfmpegPath() {
+  const executable = process.platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
   const candidates = app.isPackaged
-    ? [path.join(process.resourcesPath, 'ffmpeg', 'ffmpeg')]
-    : [path.join(__dirname, '../../build/ffmpeg/ffmpeg'), '/opt/homebrew/bin/ffmpeg', '/usr/local/bin/ffmpeg'];
+    ? [path.join(process.resourcesPath, 'ffmpeg', executable)]
+    : process.platform === 'win32'
+      ? [path.join(__dirname, '../../build/windows/ffmpeg.exe'), 'ffmpeg.exe']
+      : [path.join(__dirname, '../../build/ffmpeg/ffmpeg'), '/opt/homebrew/bin/ffmpeg', '/usr/local/bin/ffmpeg'];
 
   return candidates.find((candidate) => candidate && fs.existsSync(candidate)) || null;
 }
@@ -243,6 +252,12 @@ function send(channel, payload) {
 }
 
 function playCompletionSound() {
+  if (process.platform === 'win32') {
+    const sound = spawn('powershell.exe', ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', '[System.Media.SystemSounds]::Asterisk.Play()'], { detached: true, stdio: 'ignore', windowsHide: true });
+    sound.on('error', () => {});
+    sound.unref();
+    return;
+  }
   const soundPath = '/System/Library/Sounds/Tink.aiff';
   if (!fs.existsSync(soundPath)) return;
   const sound = spawn('/usr/bin/afplay', ['-v', '0.35', soundPath], { detached: true, stdio: 'ignore' });
@@ -251,6 +266,7 @@ function playCompletionSound() {
 }
 
 async function requestInitialFolderPermissions() {
+  if (process.platform !== 'darwin') return;
   for (const folderName of ['desktop', 'documents', 'downloads']) {
     try {
       const directory = await fs.promises.opendir(app.getPath(folderName));
@@ -262,9 +278,11 @@ async function requestInitialFolderPermissions() {
 }
 
 function createWindow() {
+  const isMac = process.platform === 'darwin';
   mainWindow = new BrowserWindow({
     width: 410,
     height: 400,
+    useContentSize: true,
     minWidth: 410,
     minHeight: 400,
     maxWidth: 410,
@@ -272,8 +290,7 @@ function createWindow() {
     resizable: false,
     maximizable: false,
     title: 'Pantoraya',
-    titleBarStyle: 'hidden',
-    trafficLightPosition: { x: 14, y: 14 },
+    ...(isMac ? { titleBarStyle: 'hidden', trafficLightPosition: { x: 14, y: 14 } } : {}),
     backgroundColor: '#1d1d1f',
     show: false,
     webPreferences: {
@@ -301,6 +318,16 @@ function assertTrustedEvent(event) {
 }
 
 function createMenu() {
+  if (process.platform === 'win32') {
+    const es = currentLanguage === 'es';
+    Menu.setApplicationMenu(Menu.buildFromTemplate([
+      { label: es ? 'Archivo' : 'File', submenu: [{ role: 'quit', label: t('quit') }] },
+      { label: t('edit'), submenu: [{ role: 'undo', label: t('undo') }, { role: 'redo', label: t('redo') }, { type: 'separator' }, { role: 'cut', label: t('cut') }, { role: 'copy', label: t('copy') }, { role: 'paste', label: t('paste') }, { role: 'selectAll', label: t('selectAll') }] },
+      { label: t('window'), submenu: [{ role: 'minimize', label: t('minimize') }, { role: 'close', label: es ? 'Cerrar' : 'Close' }] },
+      { label: es ? 'Ayuda' : 'Help', submenu: [{ label: t('about'), click: () => app.showAboutPanel() }] }
+    ]));
+    return;
+  }
   Menu.setApplicationMenu(Menu.buildFromTemplate([
     {
       label: 'Pantoraya',
@@ -327,6 +354,34 @@ function updateAboutPanel() {
     credits: t('aboutCredit'),
     website: 'https://github.com/VodoooFilms/pantoraya'
   });
+}
+
+async function runWindowsPdfConversion({ inputPath, outputPath, inputBytes, profile }) {
+  let cancelled = false;
+  activeConversion = {
+    outputPath,
+    cancel: () => { cancelled = true; }
+  };
+  send('conversion-status', { status: 'starting', message: `${t('pdfCompressing')} · ${t(profile.labelKey)}…` });
+  try {
+    await compressPdfOnWindows({
+      inputPath,
+      outputPath,
+      profileId: profile.helperProfile,
+      isCancelled: () => cancelled,
+      onProgress: (percent) => send('conversion-progress', { percent, timemark: '' })
+    });
+    const outputBytes = (await keepSmallestPdf(inputPath, outputPath)).outputBytes;
+    playCompletionSound();
+    return { success: true, outputPath, outputBytes, inputBytes, converterId: 'pdf', profileId: profile.helperProfile };
+  } catch (error) {
+    await fs.promises.rm(outputPath, { force: true }).catch(() => {});
+    if (cancelled || error.code === 'CANCELLED') throw new Error(t('cancelled'));
+    if (error.code === 'PDF_LOCKED') throw new Error(t('pdfLocked'));
+    throw new Error(t('pdfFailed'));
+  } finally {
+    activeConversion = null;
+  }
 }
 
 function runPdfConversion({ inputPath, outputPath, inputBytes, profile }) {
@@ -405,6 +460,7 @@ async function runWordConversion({ inputPath, outputPath, inputBytes }) {
   send('conversion-status', { status: 'starting', message: `${t('docConverting')}…` });
   try {
     await convertWordToPdf({
+      app,
       inputPath,
       outputPath,
       onChild: (process) => { child = process; },
@@ -414,6 +470,30 @@ async function runWordConversion({ inputPath, outputPath, inputBytes }) {
     const outputBytes = (await fs.promises.stat(outputPath)).size;
     playCompletionSound();
     return { success: true, outputPath, outputBytes, inputBytes, converterId: 'pdf', profileId: 'document' };
+  } catch (error) {
+    await fs.promises.rm(outputPath, { force: true }).catch(() => {});
+    if (cancelled || error.code === 'CANCELLED') throw new Error(t('cancelled'));
+    if (error.code === 'DOCUMENT_ENGINE_MISSING') throw new Error(t('documentEngineMissing'));
+    throw new Error(t('pdfFailed'));
+  } finally {
+    activeConversion = null;
+  }
+}
+
+async function runImagePdfConversion({ inputPath, outputPath, inputBytes }) {
+  let cancelled = false;
+  activeConversion = { outputPath, cancel: () => { cancelled = true; } };
+  send('conversion-status', { status: 'starting', message: `${t('imageConverting')}…` });
+  try {
+    await convertJpegToPdf({
+      inputPath,
+      outputPath,
+      isCancelled: () => cancelled,
+      onProgress: (percent) => send('conversion-progress', { percent, timemark: '' })
+    });
+    const outputBytes = (await fs.promises.stat(outputPath)).size;
+    playCompletionSound();
+    return { success: true, outputPath, outputBytes, inputBytes, converterId: 'pdf', profileId: 'image' };
   } catch (error) {
     await fs.promises.rm(outputPath, { force: true }).catch(() => {});
     if (cancelled || error.code === 'CANCELLED') throw new Error(t('cancelled'));
@@ -477,21 +557,49 @@ ipcMain.handle('inspect-file', async (_event, filePath) => {
   return fileDetails(filePath);
 });
 
-ipcMain.handle('convert-media', async (_event, inputPath, converterId, profileId) => {
+ipcMain.handle('select-subtitle', async (event) => {
+  assertTrustedEvent(event);
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: currentLanguage === 'es' ? 'Selecciona subtítulos SRT' : 'Select SRT subtitles',
+    properties: ['openFile'],
+    filters: [{ name: 'SubRip', extensions: ['srt'] }]
+  });
+  if (result.canceled || !result.filePaths[0]) return null;
+  return { path: result.filePaths[0], name: path.basename(result.filePaths[0]) };
+});
+
+ipcMain.handle('inspect-subtitle', async (event, filePath) => {
+  assertTrustedEvent(event);
+  if (typeof filePath !== 'string' || !SUBTITLE_EXTENSIONS.has(path.extname(filePath).toLowerCase()) || !fs.existsSync(filePath)) {
+    throw new Error(t('unsupported'));
+  }
+  return { path: filePath, name: path.basename(filePath) };
+});
+
+ipcMain.handle('convert-media', async (_event, inputPath, converterId, profileId, subtitlePath = null) => {
   assertTrustedEvent(_event);
   if (activeConversion) throw new Error(t('active'));
   const converter = getConverter(converterId);
   if (!converter || !isSupportedInput(inputPath, converter) || !fs.existsSync(inputPath)) throw new Error(t('missing'));
   const profile = converter.profiles[profileId];
   if (!profile) throw new Error(t('invalidProfile'));
+  if (subtitlePath !== null && (converterId !== 'mp4' || typeof subtitlePath !== 'string' || !SUBTITLE_EXTENSIONS.has(path.extname(subtitlePath).toLowerCase()) || !fs.existsSync(subtitlePath))) {
+    throw new Error(t('unsupported'));
+  }
 
   const suggestedOutputPath = uniqueOutputPath(inputPath, converter, profile);
   const outputPath = converter.engine === 'pdfkit' ? await temporaryPdfOutput(suggestedOutputPath) : suggestedOutputPath;
   const inputBytes = (await fs.promises.stat(inputPath)).size;
   if (converter.engine === 'pdfkit') {
     try {
-      if (profile.helperProfile === 'document' && ['.doc', '.docx'].includes(path.extname(inputPath).toLowerCase())) {
+      if (profile.helperProfile === 'image') {
+        return { ...(await runImagePdfConversion({ inputPath, outputPath, inputBytes })), suggestedOutputPath };
+      }
+      if (profile.helperProfile === 'document' && (process.platform === 'win32' || ['.doc', '.docx'].includes(path.extname(inputPath).toLowerCase()))) {
         return { ...(await runWordConversion({ inputPath, outputPath, inputBytes })), suggestedOutputPath };
+      }
+      if (process.platform === 'win32') {
+        return { ...(await runWindowsPdfConversion({ inputPath, outputPath, inputBytes, profile })), suggestedOutputPath };
       }
       return { ...(await runPdfConversion({ inputPath, outputPath, inputBytes, profile })), suggestedOutputPath };
     } catch (error) {
@@ -505,8 +613,11 @@ ipcMain.handle('convert-media', async (_event, inputPath, converterId, profileId
     ? (VIDEO_EXTENSIONS.has(path.extname(inputPath).toLowerCase())
       ? ['-vn']
       : ['-map', '0:a:0', '-map', '0:v?', '-c:v', 'copy', '-disposition:v', 'attached_pic'])
-    : [];
-  const args = ['-hide_banner', '-y', '-i', inputPath, ...streamArgs, ...profile.args, ...converter.outputArgs, outputPath];
+    : subtitlePath
+      ? ['-map', '0:v:0', '-map', '0:a?', '-map', '1:0', '-c:s', 'mov_text', '-metadata:s:s:0', 'language=und']
+      : [];
+  const subtitleInputArgs = subtitlePath ? ['-i', subtitlePath] : [];
+  const args = ['-hide_banner', '-y', '-i', inputPath, ...subtitleInputArgs, ...streamArgs, ...profile.args, ...converter.outputArgs, outputPath];
 
   return new Promise((resolve, reject) => {
     let duration = 0;

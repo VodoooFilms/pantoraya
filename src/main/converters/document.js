@@ -36,7 +36,38 @@ function runQuickLook(inputPath, directory, onChild) {
   });
 }
 
-async function convertWordToPdf({ inputPath, outputPath, onProgress, onChild }) {
+function runWordOnWindows({ app, inputPath, outputPath, onChild }) {
+  const scriptPath = app.isPackaged
+    ? path.join(process.resourcesPath, 'windows', 'convert-document.ps1')
+    : path.join(__dirname, '../../windows/convert-document.ps1');
+
+  return new Promise((resolve, reject) => {
+    const child = spawn('powershell.exe', [
+      '-NoLogo', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
+      '-File', scriptPath, '-InputPath', inputPath, '-OutputPath', outputPath
+    ], { stdio: ['ignore', 'ignore', 'pipe'], windowsHide: true });
+    onChild(child);
+    let stderr = '';
+    child.stderr.setEncoding('utf8');
+    child.stderr.on('data', (chunk) => { stderr = (stderr + chunk).slice(-8000); });
+    child.once('error', reject);
+    child.once('close', (code, signal) => {
+      if (signal) reject(Object.assign(new Error('Document conversion cancelled.'), { code: 'CANCELLED' }));
+      else if (code === 0) resolve();
+      else if (code === 42) reject(Object.assign(new Error('Microsoft Word is required.'), { code: 'DOCUMENT_ENGINE_MISSING' }));
+      else reject(new Error(stderr || 'Microsoft Word could not render this document.'));
+    });
+  });
+}
+
+async function convertWordToPdf({ app, inputPath, outputPath, onProgress, onChild }) {
+  if (process.platform === 'win32') {
+    onProgress(10);
+    await runWordOnWindows({ app, inputPath, outputPath, onChild });
+    onProgress(100);
+    return;
+  }
+
   const temporaryDirectory = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'pantoraya-document-'));
   let previewWindow = null;
   try {

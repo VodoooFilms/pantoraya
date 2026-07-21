@@ -1,7 +1,7 @@
 {
   "name": "pantoraya",
   "version": "1.3.0",
-  "description": "Private, offline MP4, MP3, JPG, PDF compression and document-to-PDF conversion for macOS",
+  "description": "Private, offline MP4, MP3, JPG, PDF compression and document-to-PDF conversion for macOS and Windows",
   "main": "src/main/main.js",
   "author": "Pantoraya",
   "license": "MIT",
@@ -15,6 +15,7 @@
   },
   "keywords": [
     "macos",
+    "windows",
     "ffmpeg",
     "mp4",
     "mp3",
@@ -29,13 +30,16 @@
   "scripts": {
     "build:ffmpeg": "node scripts/build-ffmpeg.js",
     "build:pdf-helper": "node scripts/build-pdf-helper.js",
-    "prepare:engines": "npm run build:ffmpeg && npm run build:pdf-helper",
+    "prepare:engines": "node scripts/prepare-engines.js",
+    "prepare:windows": "node scripts/prepare-windows.js",
     "prestart": "npm run prepare:engines",
     "start": "electron .",
-    "check": "node --check src/main/main.js && node --check src/preload/preload.js && node --check src/renderer/app.js && node --check src/main/converters/pdf.js && node --check src/main/converters/document.js && node --check scripts/build-pdf-helper.js && node --check scripts/build-ffmpeg.js",
+    "check": "node --check src/main/main.js && node --check src/preload/preload.js && node --check src/renderer/app.js && node --check src/main/converters/pdf.js && node --check src/main/converters/document.js && node --check scripts/build-pdf-helper.js && node --check scripts/build-ffmpeg.js && node --check scripts/prepare-engines.js && node --check scripts/prepare-windows.js",
     "test": "node --test",
     "prebuild": "npm run prepare:engines",
     "build": "npm run check && npm test && electron-builder --mac dmg --arm64",
+    "build:win": "npm run prepare:windows && npm run check && npm test && electron-builder --win nsis --x64",
+    "build:win:dir": "npm run prepare:windows && npm run check && npm test && electron-builder --win dir --x64",
     "prebuild:dir": "npm run prepare:engines",
     "build:dir": "npm run check && npm test && electron-builder --mac dir --arm64"
   },
@@ -53,22 +57,6 @@
       "package.json"
     ],
     "extraResources": [
-      {
-        "from": "build/ffmpeg/ffmpeg",
-        "to": "ffmpeg/ffmpeg"
-      },
-      {
-        "from": "build/pdf/PantorayaPDF",
-        "to": "pdf/PantorayaPDF"
-      },
-      {
-        "from": "assets/locales/en.lproj/InfoPlist.strings",
-        "to": "en.lproj/InfoPlist.strings"
-      },
-      {
-        "from": "assets/locales/es.lproj/InfoPlist.strings",
-        "to": "es.lproj/InfoPlist.strings"
-      },
       {
         "from": "build/licenses",
         "to": "licenses"
@@ -91,6 +79,12 @@
         }
       ],
       "identity": null,
+      "extraResources": [
+        { "from": "build/ffmpeg/ffmpeg", "to": "ffmpeg/ffmpeg" },
+        { "from": "build/pdf/PantorayaPDF", "to": "pdf/PantorayaPDF" },
+        { "from": "assets/locales/en.lproj/InfoPlist.strings", "to": "en.lproj/InfoPlist.strings" },
+        { "from": "assets/locales/es.lproj/InfoPlist.strings", "to": "es.lproj/InfoPlist.strings" }
+      ],
       "extendInfo": {
         "CFBundleName": "Pantoraya",
         "CFBundleDisplayName": "Pantoraya",
@@ -99,6 +93,23 @@
         "NSDownloadsFolderUsageDescription": "Pantoraya necesita acceder a Descargas para abrir archivos, mostrar miniaturas y guardar conversiones.",
         "NSHumanReadableCopyright": "Copyright © 2026 Pantoraya"
       }
+    },
+    "win": {
+      "icon": "assets/icons/icon.png",
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "requestedExecutionLevel": "asInvoker",
+      "extraResources": [
+        { "from": "build/windows/ffmpeg.exe", "to": "ffmpeg/ffmpeg.exe" },
+        { "from": "src/windows/convert-document.ps1", "to": "windows/convert-document.ps1" }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Pantoraya",
+      "uninstallDisplayName": "Pantoraya"
     },
     "dmg": {
       "title": "Pantoraya ${version}",
@@ -125,6 +136,10 @@
   },
   "devDependencies": {
     "electron": "^43.1.1",
-    "electron-builder": "^26.15.3"
+    "electron-builder": "^26.15.3",
+    "extract-zip": "^2.0.1"
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1"
   }
 }

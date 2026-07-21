@@ -136,7 +136,8 @@ button { font: inherit; }
 .is-processing .converter-tab { pointer-events: none; opacity: .55; }
 .is-processing .theme-toggle,
 .is-processing .language-toggle,
-.is-processing .file-card .icon-button { pointer-events: none; opacity: .55; }
+.is-processing .file-card .icon-button,
+.is-processing .subtitle-picker { pointer-events: none; opacity: .55; }
 
 .theme-toggle {
   width: 24px;
@@ -199,6 +200,30 @@ button { font: inherit; }
 .drop-zone.dragging { border-color: var(--muted); background: var(--hover); }
 .drop-zone strong { font-size: 13px; font-weight: 500; }
 .drop-zone span { color: var(--muted); font-size: 11px; }
+
+.subtitle-picker {
+  height: 34px;
+  margin-top: 8px;
+  padding: 0 10px;
+  border: 1px dashed var(--line);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  background: transparent;
+  font-size: 9px;
+  outline: none;
+  cursor: pointer;
+}
+.subtitle-picker:hover,
+.subtitle-picker:focus-visible,
+.subtitle-picker.dragging { border-color: var(--muted); background: var(--hover); }
+.subtitle-label small { opacity: .7; }
+.subtitle-file { min-width: 0; flex: 1; overflow: hidden; color: var(--text); text-overflow: ellipsis; white-space: nowrap; }
+.subtitle-remove { margin-left: auto; padding: 0 3px; border: 0; color: var(--muted); background: transparent; font-size: 15px; cursor: pointer; }
+.has-subtitle-option .profiles { margin-top: 8px; }
+.has-subtitle-option .profile { height: 62px; }
 
 .file-card { padding: 15px; display: flex; align-items: center; gap: 11px; position: relative; overflow: hidden; }
 .file-card.has-thumbnail::after {
