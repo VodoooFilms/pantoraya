@@ -95,7 +95,21 @@ button { font: inherit; }
 }
 
 .separator { opacity: .55; }
-.brand { color: #a78bfa; }
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #a78bfa;
+}
+.brand-icon {
+  width: 1em;
+  height: 1em;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 
 .converter-tabs {
   min-width: 0;
