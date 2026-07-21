@@ -1,0 +1,3 @@
+"NSDesktopFolderUsageDescription" = "Pantoraya needs access to your Desktop to open files, generate thumbnails, and save conversions.";
+"NSDocumentsFolderUsageDescription" = "Pantoraya needs access to Documents to open files, generate thumbnails, and save conversions.";
+"NSDownloadsFolderUsageDescription" = "Pantoraya needs access to Downloads to open files, generate thumbnails, and save conversions.";

@@ -1,0 +1,3 @@
+"NSDesktopFolderUsageDescription" = "Pantoraya necesita acceder a tu Escritorio para abrir archivos, mostrar miniaturas y guardar conversiones.";
+"NSDocumentsFolderUsageDescription" = "Pantoraya necesita acceder a Documentos para abrir archivos, mostrar miniaturas y guardar conversiones.";
+"NSDownloadsFolderUsageDescription" = "Pantoraya necesita acceder a Descargas para abrir archivos, mostrar miniaturas y guardar conversiones.";
