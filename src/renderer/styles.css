@@ -30,7 +30,7 @@
   --background: #f4f4f4;
   --surface: #ffffff;
   --text: #202020;
-  --muted: #858585;
+  --muted: #68686d;
   --line: #d9d9d9;
   --line-dark: #c7c7c7;
   --hover: #ebebeb;
@@ -106,7 +106,7 @@ button { font: inherit; }
   -webkit-app-region: no-drag;
 }
 .converter-tab {
-  padding: 3px 5px;
+  padding: 3px 4px;
   border: 0;
   border-radius: 4px;
   color: var(--muted);
@@ -120,6 +120,9 @@ button { font: inherit; }
 .converter-tab.active { color: var(--accent); background: var(--accent-soft); }
 .converter-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .is-processing .converter-tab { pointer-events: none; opacity: .55; }
+.is-processing .theme-toggle,
+.is-processing .language-toggle,
+.is-processing .file-card .icon-button { pointer-events: none; opacity: .55; }
 
 .theme-toggle {
   width: 24px;
@@ -312,6 +315,7 @@ button { font: inherit; }
 
 .progress,
 .result,
+.pdf-result,
 .error {
   margin-top: 13px;
   border: 1px solid var(--line);
@@ -331,6 +335,13 @@ button { font: inherit; }
 .result div { display: flex; flex-direction: column; gap: 2px; }
 .result strong { font-size: 11px; font-weight: 500; }
 .result span { color: var(--muted); font-size: 9px; }
+.pdf-result { padding: 10px 11px; }
+.pdf-result-title { display: flex; align-items: center; gap: 7px; margin-bottom: 9px; font-size: 11px; }
+.pdf-result-title strong { font-weight: 500; }
+.pdf-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 7px 14px; }
+.pdf-metrics div { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; min-width: 0; }
+.pdf-metrics small { color: var(--muted); font-size: 8px; white-space: nowrap; }
+.pdf-metrics strong { overflow: hidden; color: var(--text); font-size: 10px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
 .error { padding: 9px 11px; color: var(--error); background: var(--error-background); font-size: 10px; }
 
 .actions { display: flex; gap: 8px; padding-top: 14px; }
@@ -339,6 +350,7 @@ button { font: inherit; }
 .primary:hover:not(:disabled) { border-color: var(--button-hover); background: var(--button-hover); }
 .primary:disabled { border-color: var(--button-disabled); color: var(--button-disabled-text); background: var(--button-disabled); cursor: default; }
 .secondary { padding: 0 16px; border: 1px solid var(--line-dark); color: var(--text); background: var(--surface); }
+.actions .secondary:not(.hidden) { flex: 1; }
 .secondary:hover { background: var(--hover); }
 .success { background: var(--button); }
 .is-processing .profiles,

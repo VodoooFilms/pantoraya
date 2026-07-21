@@ -14,8 +14,9 @@
       <span class="brand">Pantoraya</span>
       <nav class="converter-tabs" id="converterTabs" role="tablist" aria-label="Tipo de conversión">
         <button class="converter-tab active" id="mp4Tab" data-converter="mp4" role="tab" aria-selected="true">MP4 converter</button>
-        <button class="converter-tab" id="mp3Tab" data-converter="mp3" role="tab" aria-selected="false">MP3 converter</button>
-        <button class="converter-tab" id="jpgTab" data-converter="jpg" role="tab" aria-selected="false">JPG</button>
+        <button class="converter-tab" id="mp3Tab" data-converter="mp3" role="tab" aria-selected="false" tabindex="-1">MP3 converter</button>
+        <button class="converter-tab" id="jpgTab" data-converter="jpg" role="tab" aria-selected="false" tabindex="-1">JPG</button>
+        <button class="converter-tab" id="pdfTab" data-converter="pdf" role="tab" aria-selected="false" tabindex="-1">PDF</button>
       </nav>
       <button class="theme-toggle" id="themeToggle" aria-label="Cambiar a modo claro" title="Cambiar a modo claro">
         <svg class="sun-icon" viewBox="0 0 20 20" aria-hidden="true">
@@ -59,10 +60,21 @@
       <div><strong id="resultTitle">Listo</strong><span id="resultDetails"></span></div>
     </section>
 
+    <section class="pdf-result hidden" id="pdfResultPanel" aria-live="polite">
+      <div class="pdf-result-title"><span class="check">✓</span><strong id="pdfResultTitle">Listo</strong></div>
+      <div class="pdf-metrics">
+        <div><small id="pdfOriginalLabel">Original</small><strong id="pdfOriginalSize"></strong></div>
+        <div><small id="pdfCompressedLabel">Comprimido</small><strong id="pdfCompressedSize"></strong></div>
+        <div><small id="pdfReductionLabel">Reducción</small><strong id="pdfReduction"></strong></div>
+        <div><small id="pdfQualityLabel">Calidad estimada</small><strong id="pdfQuality"></strong></div>
+      </div>
+    </section>
+
     <p class="error hidden" id="errorMessage" role="alert"></p>
 
     <div class="actions">
       <button class="secondary hidden" id="cancelButton">Cancelar</button>
+      <button class="secondary hidden" id="anotherButton">Comprimir otro PDF</button>
       <button class="primary" id="convertButton" disabled>Convertir a MP4</button>
       <button class="primary success hidden" id="revealButton">Mostrar en Finder</button>
     </div>
