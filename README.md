@@ -16,6 +16,10 @@
   <a href="LICENSE">MIT</a>
 </p>
 
+<p align="center">
+  <img src="assets/screenshots/pantoraya-pdf-compressor.png" width="560" alt="Pantoraya PDF workspace comparing high-quality and lightweight local compression estimates">
+</p>
+
 ## Español
 
 Pantoraya es un conversor gratuito, pequeño y de código abierto para macOS y Windows. Arrastra un archivo y la aplicación seleccionará automáticamente el espacio correcto: MP4 para video, MP3 para audio, JPG para imágenes o PDF para comprimir PDFs y convertir documentos.
