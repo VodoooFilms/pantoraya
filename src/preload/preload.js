@@ -2,11 +2,13 @@ const { contextBridge, ipcRenderer, webUtils } = require('electron');
 
 contextBridge.exposeInMainWorld('pantoraya', {
   platform: process.platform,
-  selectFile: () => ipcRenderer.invoke('select-file'),
+  selectFiles: (converter) => ipcRenderer.invoke('select-files', converter),
+  chooseOutputLocation: () => ipcRenderer.invoke('choose-output-location'),
   selectSubtitle: () => ipcRenderer.invoke('select-subtitle'),
   inspectFile: (filePath) => ipcRenderer.invoke('inspect-file', filePath),
+  inspectFiles: (filePaths) => ipcRenderer.invoke('inspect-files', filePaths),
   inspectSubtitle: (filePath) => ipcRenderer.invoke('inspect-subtitle', filePath),
-  convertMedia: (filePath, converter, profile, subtitlePath) => ipcRenderer.invoke('convert-media', filePath, converter, profile, subtitlePath),
+  convertMedia: (filePath, converter, profile, subtitlePath, options) => ipcRenderer.invoke('convert-media', filePath, converter, profile, subtitlePath, options),
   cancelConversion: () => ipcRenderer.invoke('cancel-conversion'),
   showInFolder: (filePath) => ipcRenderer.invoke('show-in-folder', filePath),
   saveOutputAs: (filePath, suggestedPath) => ipcRenderer.invoke('save-output-as', filePath, suggestedPath),
