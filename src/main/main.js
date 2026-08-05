@@ -52,7 +52,7 @@ const CONVERTERS = {
     outputArgs: ['-pix_fmt', 'yuv420p', '-movflags', '+faststart'],
     profiles: {
       quality: {
-        suffix: { es: '_mp4', en: '_mp4' },
+        suffix: { es: '', en: '' },
         labelKey: 'quality',
         args: ['-c:v', 'libx264', '-preset', 'medium', '-crf', '20', '-c:a', 'aac', '-b:a', '192k']
       },
