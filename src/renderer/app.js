@@ -30,7 +30,7 @@ if (window.pantoraya.platform === 'win32') {
 }
 
 const savedLanguage = localStorage.getItem('pantoraya-language');
-const state = { language: COPY[savedLanguage] ? savedLanguage : 'es', converter: 'mp4', file: null, subtitle: null, profile: 'quality', converting: false, outputPath: null, suggestedOutputPath: null, pdfSaved: false };
+const state = { language: COPY[savedLanguage] ? savedLanguage : 'es', converter: 'mp4', file: null, files: [], subtitle: null, profile: 'quality', converting: false, cancelRequested: false, activeIndex: 0, completedCount: 0, outputPath: null, outputPaths: [], suggestedOutputPath: null, pdfSaved: false };
 const $ = (id) => document.getElementById(id);
 const dropZone = $('dropZone');
 const fileCard = $('fileCard');
@@ -58,6 +58,12 @@ function isImageToPdf() {
 }
 
 function currentAction() {
+  if (state.files.length > 1) {
+    const format = currentConverter().format;
+    return state.language === 'es'
+      ? `Convertir ${state.files.length} archivos a ${format}`
+      : `Convert ${state.files.length} files to ${format}`;
+  }
   return isDocumentFile() ? copy().docAction : isImageToPdf() ? copy().imageAction : currentConverter().action;
 }
 
@@ -69,9 +75,9 @@ function resetSubtitle() {
   $('subtitleRemove').classList.add('hidden');
 }
 
-function estimatedBytes(profileId) {
-  if (!state.file?.size) return 0;
-  const { size, duration = 0, width = 0, height = 0, name = '' } = state.file;
+function estimatedFileBytes(file, profileId) {
+  if (!file?.size) return 0;
+  const { size, duration = 0, width = 0, height = 0, name = '' } = file;
 
   if (state.converter === 'mp3') {
     const bitrates = { high: 320000, light: 128000 };
@@ -92,6 +98,11 @@ function estimatedBytes(profileId) {
   if (profileId === 'high') return size * (isWebp ? 1.2 : isAlreadyJpeg ? 0.9 : 0.58);
   const scale = width && height ? Math.min(1, 1280 / width, 1280 / height) : 1;
   return size * (isWebp ? 0.48 : isAlreadyJpeg ? 0.35 : 0.28) * (scale ** 2);
+}
+
+function estimatedBytes(profileId) {
+  const files = state.files.length ? state.files : state.file ? [state.file] : [];
+  return files.reduce((total, file) => total + estimatedFileBytes(file, profileId), 0);
 }
 
 function updateEstimates() {
@@ -131,7 +142,9 @@ function renderProfiles() {
 function resetFile() {
   if (state.converter === 'pdf' && state.outputPath) window.pantoraya.discardOutput(state.outputPath).catch(() => {});
   state.file = null;
+  state.files = [];
   state.outputPath = null;
+  state.outputPaths = [];
   state.suggestedOutputPath = null;
   state.pdfSaved = false;
   resetSubtitle();
@@ -243,7 +256,7 @@ function setError(message = '') {
   errorMessage.classList.toggle('hidden', !message);
 }
 
-function setFile(file) {
+function setFile(file, files = [file]) {
   const extension = file.name.split('.').pop()?.toLowerCase();
   const keepImageInPdf = state.converter === 'pdf' && file.mediaType === 'image' && ['jpg', 'jpeg'].includes(extension);
   const detectedConverter = file.mediaType === 'audio'
@@ -251,12 +264,24 @@ function setFile(file) {
     : file.mediaType === 'image' && !keepImageInPdf ? 'jpg' : ['pdf', 'document'].includes(file.mediaType) || keepImageInPdf ? 'pdf' : state.converter === 'mp3' ? 'mp3' : 'mp4';
   if (detectedConverter !== state.converter) selectConverter(detectedConverter);
 
+  files = files.filter((item) => {
+    if (state.converter === 'mp4') return item.mediaType === 'video';
+    if (state.converter === 'mp3') return item.mediaType === 'video' || item.mediaType === 'audio';
+    if (state.converter === 'jpg') return item.mediaType === 'image';
+    const itemExtension = item.name.split('.').pop()?.toLowerCase();
+    return item.mediaType === 'pdf' || item.mediaType === 'document' || (item.mediaType === 'image' && ['jpg', 'jpeg'].includes(itemExtension));
+  });
+  if (state.converter === 'pdf') files = files.filter((item) => item.mediaType === files[0]?.mediaType);
+  if (!files.length) return;
+  file = files[0];
+
   state.file = file;
+  state.files = files;
   state.profile = file.mediaType === 'document' ? 'document' : isImageToPdf() ? 'image' : currentConverter().defaultProfile;
   state.outputPath = null;
   document.body.classList.remove('is-processing', 'is-complete');
-  $('fileName').textContent = file.name;
-  $('fileSize').textContent = formatBytes(file.size);
+  $('fileName').textContent = files.length > 1 ? `${file.name}  +${files.length - 1}` : file.name;
+  $('fileSize').textContent = formatBytes(files.reduce((total, item) => total + item.size, 0));
   if (file.thumbnail) {
     $('fileThumbnail').src = file.thumbnail;
     $('fileThumbnail').classList.remove('hidden');
@@ -270,7 +295,7 @@ function setFile(file) {
   }
   fileCard.classList.remove('hidden');
   dropZone.classList.add('hidden');
-  const showSubtitlePicker = state.converter === 'mp4' && file.mediaType === 'video';
+  const showSubtitlePicker = files.length === 1 && state.converter === 'mp4' && file.mediaType === 'video';
   $('subtitlePicker').classList.toggle('hidden', !showSubtitlePicker);
   document.body.classList.toggle('has-subtitle-option', showSubtitlePicker);
   if (!showSubtitlePicker) resetSubtitle();
@@ -291,8 +316,8 @@ function setFile(file) {
 async function chooseFile() {
   if (state.converting) return;
   try {
-    const file = await window.pantoraya.selectFile();
-    if (file) setFile(file);
+    const files = await window.pantoraya.selectFiles(state.converter);
+    if (files.length) setFile(files[0], files);
   } catch (error) { setError(error.message); }
 }
 
@@ -324,9 +349,12 @@ for (const eventName of ['dragleave', 'drop']) {
   dropZone.addEventListener(eventName, (event) => { event.preventDefault(); dropZone.classList.remove('dragging'); });
 }
 dropZone.addEventListener('drop', async (event) => {
-  const file = event.dataTransfer.files[0];
-  if (!file) return;
-  try { setFile(await window.pantoraya.inspectFile(window.pantoraya.pathForFile(file))); }
+  const dropped = [...event.dataTransfer.files];
+  if (!dropped.length) return;
+  try {
+    const files = await window.pantoraya.inspectFiles(dropped.map((file) => window.pantoraya.pathForFile(file)));
+    setFile(files[0], files);
+  }
   catch (error) { setError(error.message); }
 });
 
@@ -379,17 +407,33 @@ $('profileGrid').addEventListener('click', (event) => {
 });
 
 const stopProgress = window.pantoraya.onProgress(({ percent, timemark }) => {
-  $('progressBar').style.width = `${percent}%`;
-  $('progressPercent').textContent = `${percent}%`;
+  const total = Math.max(1, state.files.length);
+  const overallPercent = Math.round(((state.completedCount + (percent / 100)) / total) * 100);
+  $('progressBar').style.width = `${overallPercent}%`;
+  $('progressPercent').textContent = `${overallPercent}%`;
   $('progressTime').textContent = timemark ? `${copy().processed}: ${timemark}` : '';
-  $('progressLabel').textContent = percent < 20 ? copy().analyzing : percent < 90 ? copy().compressing : copy().finishing;
+  const phase = percent < 20 ? copy().analyzing : percent < 90 ? copy().compressing : copy().finishing;
+  $('progressLabel').textContent = state.files.length > 1 ? `${state.activeIndex + 1}/${state.files.length} · ${phase}` : phase;
 });
-const stopStatus = window.pantoraya.onStatus(({ message }) => { if (message) $('progressLabel').textContent = message; });
+const stopStatus = window.pantoraya.onStatus(({ message }) => {
+  if (message) $('progressLabel').textContent = state.files.length > 1 ? `${state.activeIndex + 1}/${state.files.length} · ${message}` : message;
+});
 window.addEventListener('beforeunload', () => { stopProgress(); stopStatus(); });
 
 convertButton.addEventListener('click', async () => {
   if (!state.file || state.converting) return;
+  let destination;
+  try {
+    destination = await window.pantoraya.chooseOutputLocation();
+    if (destination.canceled) return;
+  } catch (error) {
+    setError(error.message || copy().failed);
+    return;
+  }
   state.converting = true;
+  state.cancelRequested = false;
+  state.completedCount = 0;
+  state.outputPaths = [];
   document.body.classList.remove('is-complete');
   document.body.classList.add('is-processing');
   setError();
@@ -399,20 +443,56 @@ convertButton.addEventListener('click', async () => {
   $('progressBar').style.width = '0%';
   $('progressPercent').textContent = '0%';
   try {
-    const result = await window.pantoraya.convertMedia(state.file.path, state.converter, state.profile, state.subtitle?.path || null);
+    const results = [];
+    const errors = [];
+    for (let index = 0; index < state.files.length; index += 1) {
+      if (state.cancelRequested) break;
+      state.activeIndex = index;
+      try {
+        const result = await window.pantoraya.convertMedia(
+          state.files[index].path,
+          state.converter,
+          state.profile,
+          state.files.length === 1 ? state.subtitle?.path || null : null,
+          { outputDirectory: destination.path, directOutput: true }
+        );
+        results.push(result);
+        state.outputPaths.push(result.outputPath);
+        state.completedCount += 1;
+      } catch (error) {
+        if (state.cancelRequested) break;
+        errors.push(error);
+      }
+    }
+    if (state.cancelRequested) {
+      document.body.classList.remove('is-processing');
+      $('progressPanel').classList.add('hidden');
+      cancelButton.classList.add('hidden');
+      convertButton.classList.remove('hidden');
+      return;
+    }
+    if (!results.length) throw errors[0] || new Error(copy().failed);
+    const result = results[0];
     state.outputPath = result.outputPath;
-    state.suggestedOutputPath = result.suggestedOutputPath || null;
-    state.pdfSaved = false;
+    state.suggestedOutputPath = null;
+    state.pdfSaved = true;
     document.body.classList.remove('is-processing');
     document.body.classList.add('is-complete');
     $('progressPanel').classList.add('hidden');
     cancelButton.classList.add('hidden');
     revealButton.classList.remove('hidden');
-    const delta = result.inputBytes ? Math.round((1 - result.outputBytes / result.inputBytes) * 100) : 0;
-    if (isImageToPdf()) {
+    const inputBytes = results.reduce((total, item) => total + item.inputBytes, 0);
+    const outputBytes = results.reduce((total, item) => total + item.outputBytes, 0);
+    const delta = inputBytes ? Math.round((1 - outputBytes / inputBytes) * 100) : 0;
+    if (state.files.length > 1) {
+      $('resultPanel').classList.remove('hidden');
+      $('resultDetails').textContent = `${results.length}/${state.files.length} · ${formatBytes(outputBytes)}`;
+      revealButton.textContent = copy().reveal;
+      if (errors.length) setError(errors[0].message || copy().failed);
+    } else if (isImageToPdf()) {
       $('resultPanel').classList.remove('hidden');
       $('resultDetails').textContent = formatBytes(result.outputBytes);
-      revealButton.textContent = copy().saveAs;
+      revealButton.textContent = copy().reveal;
       anotherButton.classList.remove('hidden');
     } else if (state.converter === 'pdf' && !isDocumentFile()) {
       $('pdfOriginalSize').textContent = formatBytes(result.inputBytes);
@@ -420,12 +500,12 @@ convertButton.addEventListener('click', async () => {
       $('pdfReduction').textContent = `${Math.max(0, delta)}%`;
       $('pdfQuality').textContent = currentConverter().profiles.find((profile) => profile.id === state.profile)?.name || '';
       $('pdfResultPanel').classList.remove('hidden');
-      revealButton.textContent = copy().saveAs;
+      revealButton.textContent = copy().reveal;
       anotherButton.classList.remove('hidden');
     } else if (isDocumentFile()) {
       $('resultPanel').classList.remove('hidden');
       $('resultDetails').textContent = formatBytes(result.outputBytes);
-      revealButton.textContent = copy().saveAs;
+      revealButton.textContent = copy().reveal;
       anotherButton.classList.remove('hidden');
     } else {
       $('resultPanel').classList.remove('hidden');
@@ -442,6 +522,7 @@ convertButton.addEventListener('click', async () => {
 });
 
 cancelButton.addEventListener('click', async () => {
+  state.cancelRequested = true;
   cancelButton.disabled = true;
   await window.pantoraya.cancelConversion();
   cancelButton.disabled = false;
