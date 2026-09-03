@@ -34,7 +34,7 @@
     "prepare:windows": "node scripts/prepare-windows.js",
     "prestart": "npm run prepare:engines",
     "start": "electron .",
-    "check": "node --check src/main/main.js && node --check src/preload/preload.js && node --check src/renderer/app.js && node --check src/main/converters/pdf.js && node --check src/main/converters/document.js && node --check scripts/build-pdf-helper.js && node --check scripts/build-ffmpeg.js && node --check scripts/prepare-engines.js && node --check scripts/prepare-windows.js",
+    "check": "node --check src/main/main.js && node --check src/main/pdf-pro/session-manager.js && node --check src/preload/preload.js && node --check src/renderer/app.js && node --check src/renderer/pdf-pro.js && node --check src/main/converters/pdf.js && node --check src/main/converters/document.js && node --check scripts/build-pdf-helper.js && node --check scripts/build-ffmpeg.js && node --check scripts/prepare-engines.js && node --check scripts/prepare-windows.js",
     "test": "node --test",
     "prebuild": "npm run prepare:engines",
     "build": "npm run check && npm test && electron-builder --mac dmg --arm64",
@@ -68,7 +68,7 @@
     ],
     "mac": {
       "category": "public.app-category.utilities",
-      "icon": "assets/icons/icon.icns",
+      "icon": "assets/icons/pantoraya.icns",
       "minimumSystemVersion": "13.4",
       "target": [
         {
@@ -82,6 +82,7 @@
       "extraResources": [
         { "from": "build/ffmpeg/ffmpeg", "to": "ffmpeg/ffmpeg" },
         { "from": "build/pdf/PantorayaPDF", "to": "pdf/PantorayaPDF" },
+        { "from": "assets/icons/pantoraya.png", "to": "icons/pantoraya.png" },
         { "from": "assets/locales/en.lproj/InfoPlist.strings", "to": "en.lproj/InfoPlist.strings" },
         { "from": "assets/locales/es.lproj/InfoPlist.strings", "to": "es.lproj/InfoPlist.strings" }
       ],
@@ -95,7 +96,7 @@
       }
     },
     "win": {
-      "icon": "assets/icons/icon.png",
+      "icon": "assets/icons/pantoraya.png",
       "target": [{ "target": "nsis", "arch": ["x64"] }],
       "requestedExecutionLevel": "asInvoker",
       "extraResources": [
@@ -113,7 +114,7 @@
     },
     "dmg": {
       "title": "Pantoraya ${version}",
-      "icon": "assets/icons/icon.icns",
+      "icon": "assets/icons/pantoraya.icns",
       "iconSize": 128,
       "window": {
         "width": 540,
@@ -140,6 +141,7 @@
     "extract-zip": "^2.0.1"
   },
   "dependencies": {
-    "pdf-lib": "^1.17.1"
+    "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "^5.4.149"
   }
 }

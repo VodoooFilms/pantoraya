@@ -6,11 +6,16 @@ const path = require('path');
 const { pathToFileURL } = require('url');
 const { compressPdfOnWindows, convertJpegToPdf, keepSmallestPdf, startPdfTool } = require('./converters/pdf');
 const { convertWordToPdf } = require('./converters/document');
+const { PdfProSessionManager, IMPORT_EXTENSIONS } = require('./pdf-pro/session-manager');
 
 let mainWindow = null;
 let activeConversion = null;
 let currentLanguage = 'es';
+let pdfProDirty = false;
+let allowWindowClose = false;
+let pdfProExportSession = null;
 const temporaryOutputs = new Set();
+const pdfProSessions = new PdfProSessionManager();
 
 const TEXT = {
   es: {
@@ -293,6 +298,7 @@ async function requestInitialFolderPermissions() {
 
 function createWindow() {
   const isMac = process.platform === 'darwin';
+  allowWindowClose = false;
   mainWindow = new BrowserWindow({
     width: 410,
     height: 400,
@@ -323,7 +329,37 @@ function createWindow() {
   });
   mainWindow.webContents.session.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
   mainWindow.once('ready-to-show', () => mainWindow.show());
+  mainWindow.on('close', (event) => {
+    if (!pdfProDirty || allowWindowClose) return;
+    event.preventDefault();
+    const es = currentLanguage === 'es';
+    dialog.showMessageBox(mainWindow, {
+      type: 'warning',
+      message: es ? 'Hay cambios sin guardar' : 'You have unsaved changes',
+      detail: es ? 'Guarda una copia antes de cerrar Pantoraya.' : 'Save a copy before closing Pantoraya.',
+      buttons: [es ? 'Guardar una copia' : 'Save a copy', es ? 'Descartar' : 'Discard', es ? 'Cancelar' : 'Cancel'],
+      defaultId: 0,
+      cancelId: 2,
+      noLink: true
+    }).then(({ response }) => {
+      if (response === 0) send('pdf-pro-save-requested', {});
+      if (response === 1 && mainWindow && !mainWindow.isDestroyed()) {
+        pdfProDirty = false;
+        allowWindowClose = true;
+        mainWindow.close();
+      }
+    });
+  });
   mainWindow.on('closed', () => { mainWindow = null; });
+}
+
+function setDockIcon() {
+  if (process.platform !== 'darwin') return;
+  const iconPath = app.isPackaged
+    ? path.join(process.resourcesPath, 'icons', 'pantoraya.png')
+    : path.join(__dirname, '../../assets/icons/pantoraya.png');
+  const icon = nativeImage.createFromPath(iconPath);
+  if (!icon.isEmpty()) app.dock.setIcon(icon);
 }
 
 function assertTrustedEvent(event) {
@@ -518,6 +554,7 @@ async function runImagePdfConversion({ inputPath, outputPath, inputBytes }) {
 }
 
 app.whenReady().then(() => {
+  setDockIcon();
   updateAboutPanel();
   createMenu();
   createWindow();
@@ -756,4 +793,196 @@ ipcMain.handle('save-output-as', async (_event, filePath, suggestedPath) => {
 ipcMain.handle('discard-output', async (event, filePath) => {
   assertTrustedEvent(event);
   return typeof filePath === 'string' ? discardTemporaryOutput(filePath) : false;
+});
+
+function pdfProError(error) {
+  const es = currentLanguage === 'es';
+  if (error?.code === 'PDF_LOCKED' || error?.message === 'PDF_LOCKED') {
+    return new Error(es ? 'Los PDF protegidos todavía no son compatibles.' : 'Protected PDFs are not supported yet.');
+  }
+  if (error?.code === 'CANCELLED' || error?.message === 'CANCELLED') {
+    return new Error(es ? 'Exportación cancelada.' : 'Export cancelled.');
+  }
+  if (error?.code === 'PDF_INVALID' || error?.message === 'PDF_INVALID') {
+    return new Error(es ? 'El PDF está dañado o no se pudo leer.' : 'The PDF is damaged or could not be read.');
+  }
+  return error instanceof Error ? error : new Error(es ? 'No se pudo procesar el PDF.' : 'The PDF could not be processed.');
+}
+
+function updatePdfProDirty(manifest) {
+  pdfProDirty = Boolean(manifest?.dirty);
+  return manifest;
+}
+
+ipcMain.handle('set-window-mode', async (event, mode) => {
+  assertTrustedEvent(event);
+  if (!mainWindow || mainWindow.isDestroyed() || !['compact', 'pdf-pro'].includes(mode)) return false;
+  if (mode === 'pdf-pro') {
+    mainWindow.setResizable(true);
+    mainWindow.setMaximizable(true);
+    mainWindow.setMinimumSize(640, 520);
+    mainWindow.setMaximumSize(10000, 10000);
+    mainWindow.setContentSize(640, 520, true);
+  } else {
+    if (mainWindow.isFullScreen()) mainWindow.setFullScreen(false);
+    mainWindow.setMinimumSize(410, 400);
+    mainWindow.setMaximumSize(410, 400);
+    mainWindow.setContentSize(410, 400, true);
+    mainWindow.setResizable(false);
+    mainWindow.setMaximizable(false);
+  }
+  mainWindow.center();
+  return true;
+});
+
+ipcMain.handle('pdf-pro-toggle-fullscreen', async (event) => {
+  assertTrustedEvent(event);
+  if (!mainWindow || mainWindow.isDestroyed()) return false;
+  mainWindow.setFullScreen(!mainWindow.isFullScreen());
+  return mainWindow.isFullScreen();
+});
+
+ipcMain.handle('pdf-pro-open', async (event) => {
+  assertTrustedEvent(event);
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: currentLanguage === 'es' ? 'Abrir PDF en PDF Pro' : 'Open PDF in PDF Pro',
+    properties: ['openFile'],
+    filters: [{ name: 'PDF', extensions: ['pdf'] }]
+  });
+  if (result.canceled || !result.filePaths[0]) return null;
+  try {
+    const manifest = await pdfProSessions.create(result.filePaths[0]);
+    pdfProDirty = false;
+    return manifest;
+  } catch (error) {
+    throw pdfProError(error);
+  }
+});
+
+ipcMain.handle('pdf-pro-source', async (event, sessionId, sourceId) => {
+  assertTrustedEvent(event);
+  try {
+    return pdfProSessions.sourceBytes(sessionId, sourceId);
+  } catch (error) {
+    throw pdfProError(error);
+  }
+});
+
+ipcMain.handle('pdf-pro-command', async (event, sessionId, command) => {
+  assertTrustedEvent(event);
+  try {
+    return updatePdfProDirty(pdfProSessions.apply(sessionId, command));
+  } catch (error) {
+    throw pdfProError(error);
+  }
+});
+
+ipcMain.handle('pdf-pro-undo', async (event, sessionId) => {
+  assertTrustedEvent(event);
+  try { return updatePdfProDirty(pdfProSessions.undo(sessionId)); }
+  catch (error) { throw pdfProError(error); }
+});
+
+ipcMain.handle('pdf-pro-redo', async (event, sessionId) => {
+  assertTrustedEvent(event);
+  try { return updatePdfProDirty(pdfProSessions.redo(sessionId)); }
+  catch (error) { throw pdfProError(error); }
+});
+
+ipcMain.handle('pdf-pro-import', async (event, sessionId, options = {}) => {
+  assertTrustedEvent(event);
+  options = options && typeof options === 'object' ? options : {};
+  const replacing = typeof options.replacePageId === 'string';
+  const result = await dialog.showOpenDialog(mainWindow, {
+    title: replacing
+      ? (currentLanguage === 'es' ? 'Reemplazar página' : 'Replace page')
+      : (currentLanguage === 'es' ? 'Añadir páginas' : 'Add pages'),
+    properties: replacing ? ['openFile'] : ['openFile', 'multiSelections'],
+    filters: [
+      { name: currentLanguage === 'es' ? 'PDF e imágenes' : 'PDF and images', extensions: [...IMPORT_EXTENSIONS].map((extension) => extension.slice(1)) },
+      { name: 'PDF', extensions: ['pdf'] },
+      { name: currentLanguage === 'es' ? 'Imágenes' : 'Images', extensions: ['jpg', 'jpeg', 'png'] }
+    ]
+  });
+  if (result.canceled || !result.filePaths.length) return null;
+  try {
+    return updatePdfProDirty(await pdfProSessions.import(sessionId, result.filePaths, options.insertIndex, options.replacePageId));
+  } catch (error) {
+    throw pdfProError(error);
+  }
+});
+
+async function exportPdfPro(sessionId, pageIds = null) {
+  if (pdfProExportSession) throw new Error(currentLanguage === 'es' ? 'Ya hay una exportación en curso.' : 'An export is already running.');
+  const manifest = pdfProSessions.manifest(sessionId);
+  const originalExtension = path.extname(manifest.name);
+  const baseName = path.basename(manifest.name, originalExtension);
+  const suffix = pageIds?.length ? (currentLanguage === 'es' ? '_paginas' : '_pages') : (currentLanguage === 'es' ? '_editado' : '_edited');
+  const result = await dialog.showSaveDialog(mainWindow, {
+    title: pageIds?.length
+      ? (currentLanguage === 'es' ? 'Extraer páginas' : 'Extract pages')
+      : (currentLanguage === 'es' ? 'Guardar una copia' : 'Save a copy'),
+    defaultPath: `${baseName}${suffix}.pdf`,
+    filters: [{ name: 'PDF', extensions: ['pdf'] }]
+  });
+  if (result.canceled || !result.filePath) return null;
+  pdfProExportSession = sessionId;
+  try {
+    const exported = await pdfProSessions.export(sessionId, result.filePath, pageIds, (percent) => {
+      send('pdf-pro-progress', { sessionId, percent });
+    });
+    if (!pageIds?.length) updatePdfProDirty(exported.manifest);
+    playCompletionSound();
+    return exported;
+  } catch (error) {
+    throw pdfProError(error);
+  } finally {
+    pdfProExportSession = null;
+  }
+}
+
+ipcMain.handle('pdf-pro-export', async (event, sessionId) => {
+  assertTrustedEvent(event);
+  return exportPdfPro(sessionId);
+});
+
+ipcMain.handle('pdf-pro-extract', async (event, sessionId, pageIds) => {
+  assertTrustedEvent(event);
+  if (!Array.isArray(pageIds) || !pageIds.length || pageIds.some((id) => typeof id !== 'string')) {
+    throw new Error(currentLanguage === 'es' ? 'Selecciona una o varias páginas.' : 'Select one or more pages.');
+  }
+  return exportPdfPro(sessionId, pageIds);
+});
+
+ipcMain.handle('pdf-pro-cancel-export', async (event, sessionId) => {
+  assertTrustedEvent(event);
+  return pdfProSessions.cancelExport(sessionId);
+});
+
+ipcMain.handle('pdf-pro-show-output', async (event, filePath) => {
+  assertTrustedEvent(event);
+  if (typeof filePath === 'string' && path.extname(filePath).toLowerCase() === '.pdf' && fs.existsSync(filePath)) {
+    shell.showItemInFolder(filePath);
+    return true;
+  }
+  return false;
+});
+
+ipcMain.handle('pdf-pro-close-session', async (event, sessionId, discard = false) => {
+  assertTrustedEvent(event);
+  if (!discard && pdfProDirty) {
+    const result = await dialog.showMessageBox(mainWindow, {
+      type: 'warning',
+      message: currentLanguage === 'es' ? '¿Descartar los cambios?' : 'Discard changes?',
+      detail: currentLanguage === 'es' ? 'El PDF original no se modificará.' : 'The original PDF will not be modified.',
+      buttons: [currentLanguage === 'es' ? 'Seguir editando' : 'Keep editing', currentLanguage === 'es' ? 'Descartar' : 'Discard'],
+      defaultId: 0,
+      cancelId: 0,
+      noLink: true
+    });
+    if (result.response !== 1) return false;
+  }
+  pdfProDirty = false;
+  pdfProSessions.close(sessionId);
+  return true;
 });

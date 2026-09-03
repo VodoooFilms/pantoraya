@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; worker-src 'self'">
   <title>Pantoraya</title>
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -12,16 +12,14 @@
   <main class="shell">
     <header class="masthead">
       <span class="brand">
-        <svg class="brand-icon" viewBox="0 0 16 16" aria-hidden="true">
-          <path d="M13 5.5V2.75l-1.35 1.1A5.5 5.5 0 1 0 13.2 9"></path>
-        </svg>
+        <img class="brand-icon" src="../../assets/icons/pantoraya-mark.png" alt="" aria-hidden="true">
         <span>Pantoraya</span>
       </span>
       <nav class="converter-tabs" id="converterTabs" role="tablist" aria-label="Tipo de conversión">
         <button class="converter-tab active" id="mp4Tab" data-converter="mp4" role="tab" aria-selected="true">MP4</button>
         <button class="converter-tab" id="mp3Tab" data-converter="mp3" role="tab" aria-selected="false" tabindex="-1">MP3</button>
-        <button class="converter-tab" id="jpgTab" data-converter="jpg" role="tab" aria-selected="false" tabindex="-1">JPG</button>
         <button class="converter-tab" id="pdfTab" data-converter="pdf" role="tab" aria-selected="false" tabindex="-1">PDF</button>
+        <button class="converter-tab pdf-pro-tab" id="pdfProTab" data-converter="pdfpro" role="tab" aria-selected="false" tabindex="-1">PDF PRO</button>
       </nav>
       <button class="theme-toggle" id="themeToggle" aria-label="Cambiar a modo claro" title="Cambiar a modo claro">
         <svg class="sun-icon" viewBox="0 0 20 20" aria-hidden="true">
@@ -89,7 +87,64 @@
       <button class="primary" id="convertButton" disabled>Convertir a MP4</button>
       <button class="primary success hidden" id="revealButton">Mostrar en Finder</button>
     </div>
+
+    <section class="pdf-pro hidden" id="pdfProSection" aria-label="PDF Pro">
+      <div class="pdf-pro-empty" id="pdfProEmpty" tabindex="0" role="button">
+        <strong id="pdfProEmptyTitle">Edita y organiza un PDF</strong>
+        <span id="pdfProEmptyHint">abre un documento para comenzar</span>
+      </div>
+
+      <div class="pdf-pro-editor hidden" id="pdfProEditor">
+        <div class="pdf-pro-document-bar">
+          <div class="pdf-pro-document-name">
+            <span class="pdf-pro-dirty hidden" id="pdfProDirty" aria-label="Cambios sin guardar"></span>
+            <strong id="pdfProName"></strong>
+            <button class="pdf-pro-icon pdf-pro-document-close" id="pdfProClose" title="Cerrar documento" aria-label="Cerrar documento">×</button>
+          </div>
+          <span id="pdfProCounter">Página 1 de 1</span>
+          <button class="pdf-pro-icon" id="pdfProFullscreen" title="Pantalla completa" aria-label="Pantalla completa">⛶</button>
+        </div>
+
+        <div class="pdf-pro-workspace">
+          <aside class="pdf-pro-sidebar" id="pdfProSidebar" aria-label="Páginas">
+            <div class="pdf-pro-thumbnails" id="pdfProThumbnails" role="listbox" aria-multiselectable="true"></div>
+          </aside>
+          <div class="pdf-pro-preview" id="pdfProPreview">
+            <div class="pdf-pro-canvas-wrap" id="pdfProCanvasWrap">
+              <canvas id="pdfProCanvas" aria-label="Vista previa de la página"></canvas>
+            </div>
+            <div class="pdf-pro-zoom">
+              <button id="pdfProPrevious" aria-label="Página anterior">‹</button>
+              <button id="pdfProZoomOut" aria-label="Alejar">−</button>
+              <span id="pdfProZoomValue">100%</span>
+              <button id="pdfProZoomIn" aria-label="Acercar">+</button>
+              <button id="pdfProNext" aria-label="Página siguiente">›</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pdf-pro-toolbar" aria-label="Acciones PDF">
+          <button id="pdfProAdd">+ Añadir</button>
+          <button id="pdfProReplace">Reemplazar</button>
+          <button id="pdfProRotate">↻ Rotar</button>
+          <button id="pdfProDelete">Eliminar</button>
+          <button id="pdfProExtract">Extraer</button>
+          <span class="pdf-pro-toolbar-spacer"></span>
+          <button class="pdf-pro-icon" id="pdfProUndo" aria-label="Deshacer" title="Deshacer">↶</button>
+          <button class="pdf-pro-icon" id="pdfProRedo" aria-label="Rehacer" title="Rehacer">↷</button>
+          <button class="pdf-pro-save" id="pdfProSave">Guardar una copia</button>
+        </div>
+
+        <div class="pdf-pro-status hidden" id="pdfProStatus" aria-live="polite">
+          <div class="track"><div id="pdfProProgressBar"></div></div>
+          <span id="pdfProStatusText"></span>
+          <button id="pdfProCancel">Cancelar</button>
+        </div>
+        <p class="pdf-pro-error hidden" id="pdfProError" role="alert"></p>
+      </div>
+    </section>
   </main>
   <script src="app.js"></script>
+  <script type="module" src="pdf-pro.js"></script>
 </body>
 </html>

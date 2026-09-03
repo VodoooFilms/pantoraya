@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/icons/icon.png" width="112" alt="Pantoraya icon / Ícono de Pantoraya">
+  <img src="assets/icons/pantoraya.png" width="112" alt="Pantoraya icon / Ícono de Pantoraya">
 </p>
 
 <h1 align="center">Pantoraya</h1>
@@ -31,6 +31,8 @@ Todo se procesa de forma privada en tu computadora. No hay cuentas, suscripcione
 - Compresión PDF local en alta calidad o versión liviana
 - Conversión de DOC, DOCX, TXT, RTF y ODT a PDF
 - Conversión directa de JPG/JPEG a PDF dentro del espacio PDF
+- PDF Pro para organizar, leer, reordenar, rotar, eliminar, añadir, reemplazar y extraer páginas sin subir documentos a la nube
+- Miniaturas laterales, selección múltiple, undo/redo, zoom, pantalla completa y guardado no destructivo mediante “Guardar una copia”
 - Detección automática del tipo de archivo
 - Miniaturas proporcionales sin deformación
 - Peso original y estimación del resultado en MB
@@ -46,6 +48,7 @@ Todo se procesa de forma privada en tu computadora. No hay cuentas, suscripcione
 | MP3 | MP3, WAV, M4A, AAC, FLAC, OGG, OPUS, WMA, AIFF y video | MP3 | 320 kbps · 128 kbps |
 | JPG | JPG, JPEG, PNG, WEBP, BMP, TIFF | JPG | Dimensiones originales · Liviana 1280 px |
 | PDF | PDF, JPG, JPEG, DOC, DOCX, TXT, RTF, ODT | PDF optimizado o convertido | Alta calidad · Liviana; conversión directa de imágenes y documentos |
+| PDF Pro | PDF, JPG, JPEG, PNG | Copia PDF organizada | Añadir · reemplazar · reordenar · rotar · eliminar · extraer |
 
 ### Cómo añadir subtítulos SRT
 
@@ -84,6 +87,8 @@ Everything is processed privately on your computer. There are no accounts, subsc
 - Local PDF compression in high-quality or lightweight mode
 - DOC, DOCX, TXT, RTF, and ODT to PDF conversion
 - Direct JPG/JPEG to PDF conversion inside the PDF workspace
+- PDF Pro for locally reading, organizing, reordering, rotating, deleting, adding, replacing, and extracting pages
+- Sidebar thumbnails, multi-selection, undo/redo, zoom, full screen, and non-destructive “Save a copy” output
 - Automatic file-type detection
 - Proportional thumbnails without stretching
 - Original and estimated output sizes displayed in MB
@@ -99,6 +104,7 @@ Everything is processed privately on your computer. There are no accounts, subsc
 | MP3 | MP3, WAV, M4A, AAC, FLAC, OGG, OPUS, WMA, AIFF, and video | MP3 | 320 kbps · 128 kbps |
 | JPG | JPG, JPEG, PNG, WEBP, BMP, TIFF | JPG | Original dimensions · Lightweight 1280 px |
 | PDF | PDF, JPG, JPEG, DOC, DOCX, TXT, RTF, ODT | Optimized or converted PDF | High quality · Lightweight; direct image and document conversion |
+| PDF Pro | PDF, JPG, JPEG, PNG | Organized PDF copy | Add · replace · reorder · rotate · delete · extract |
 
 ### How to add SRT subtitles
 
@@ -160,6 +166,7 @@ Ideas de producto y UX · Product and UX ideas
 - H.264 + AAC, MP3 and MJPEG
 - Apple PDFKit, AppKit and Quick Look on macOS
 - pdf-lib and Microsoft Word automation on Windows
+- PDF.js for local cross-platform page rendering
 
 ## Contribuir / Contributing
 

@@ -1,24 +1,26 @@
 const COPY = {
   es: {
-    converterTabs: 'Tipo de conversión', tabNames: { mp4: 'MP4', mp3: 'MP3', jpg: 'JPG', pdf: 'PDF' }, language: 'Idioma', switchLanguage: 'Cambiar a inglés', lightTheme: 'Cambiar a modo claro', darkTheme: 'Cambiar a modo oscuro',
+    converterTabs: 'Tipo de conversión', tabNames: { mp4: 'MP4', mp3: 'MP3', jpg: 'JPG', pdf: 'PDF', pdfpro: 'PDF PRO' }, language: 'Idioma', switchLanguage: 'Cambiar a inglés', lightTheme: 'Cambiar a modo claro', darkTheme: 'Cambiar a modo oscuro',
     original: 'Original', remove: 'Quitar archivo', quality: 'Calidad de salida', estimate: 'Estimado', estimateTitle: 'Peso final estimado; puede variar según el contenido',
     preparing: 'Preparando…', ready: 'Listo', cancel: 'Cancelar', reveal: 'Mostrar en Finder', saveAs: 'Guardar como…', anotherPdf: 'Comprimir otro PDF', anotherDocument: 'Convertir otro documento', anotherImage: 'Convertir otro JPG', docAction: 'Convertir a PDF', imageAction: 'Convertir JPG a PDF', subtitleAdd: '+ Añadir subtítulos SRT', subtitleOptional: '(opcional)', subtitleRemove: 'Quitar subtítulos', originalSize: 'Original', compressedSize: 'Comprimido', reduction: 'Reducción', estimatedQuality: 'Calidad estimada', processed: 'Procesado', analyzing: 'Analizando…', compressing: 'Comprimiendo…', finishing: 'Finalizando…', smaller: 'más pequeño', failed: 'La conversión no pudo completarse.',
     converters: {
       mp4: { defaultProfile: 'quality', dropTitle: 'Convierte videos a MP4', dropHint: 'arrastra un video o haz clic para abrir', action: 'Convertir a MP4', format: 'MP4', profiles: [{ id: 'quality', name: 'Alta calidad', detail: 'Misma resolución' }, { id: 'light', name: 'Liviana', detail: 'Máx. 720p · audio HQ' }] },
       mp3: { defaultProfile: 'high', dropTitle: 'Arrastra un audio o video', dropHint: 'convierte audio o extráelo de un video', action: 'Convertir a MP3', format: 'MP3', profiles: [{ id: 'high', name: 'Alta calidad', detail: '320 kbps' }, { id: 'light', name: 'Liviana', detail: '128 kbps' }] },
       jpg: { defaultProfile: 'high', dropTitle: 'Convierte imágenes a JPG', dropHint: 'JPG · PNG · WEBP · BMP · TIFF', action: 'Convertir a JPG', format: 'JPG', profiles: [{ id: 'high', name: 'Alta calidad', detail: 'Dimensiones originales' }, { id: 'light', name: 'Liviana', detail: 'Máx. 1280 px' }] },
-      pdf: { defaultProfile: 'high', dropTitle: 'Convierte archivos a PDF', dropHint: 'JPG · PDF · DOC · DOCX · TXT · RTF · ODT', action: 'Comprimir PDF', format: 'PDF', profiles: [{ id: 'high', name: 'Alta calidad', detail: 'Mejor calidad' }, { id: 'light', name: 'Liviana', detail: 'Archivo más pequeño' }] }
+      pdf: { defaultProfile: 'high', dropTitle: 'Convierte archivos a PDF', dropHint: 'JPG · PDF · DOC · DOCX · TXT · RTF · ODT', action: 'Comprimir PDF', format: 'PDF', profiles: [{ id: 'high', name: 'Alta calidad', detail: 'Mejor calidad' }, { id: 'light', name: 'Liviana', detail: 'Archivo más pequeño' }] },
+      pdfpro: { defaultProfile: 'edit', dropTitle: 'Edita y organiza un PDF', dropHint: 'abre un documento para comenzar', action: 'Guardar una copia', format: 'PDF', profiles: [] }
     }
   },
   en: {
-    converterTabs: 'Conversion type', tabNames: { mp4: 'MP4', mp3: 'MP3', jpg: 'JPG', pdf: 'PDF' }, language: 'Language', switchLanguage: 'Switch to Spanish', lightTheme: 'Switch to light mode', darkTheme: 'Switch to dark mode',
+    converterTabs: 'Conversion type', tabNames: { mp4: 'MP4', mp3: 'MP3', jpg: 'JPG', pdf: 'PDF', pdfpro: 'PDF PRO' }, language: 'Language', switchLanguage: 'Switch to Spanish', lightTheme: 'Switch to light mode', darkTheme: 'Switch to dark mode',
     original: 'Original', remove: 'Remove file', quality: 'Output quality', estimate: 'Estimated', estimateTitle: 'Estimated final size; may vary depending on the content',
     preparing: 'Preparing…', ready: 'Ready', cancel: 'Cancel', reveal: 'Show in Finder', saveAs: 'Save As…', anotherPdf: 'Compress Another PDF', anotherDocument: 'Convert Another Document', anotherImage: 'Convert Another JPG', docAction: 'Convert to PDF', imageAction: 'Convert JPG to PDF', subtitleAdd: '+ Add SRT subtitles', subtitleOptional: '(optional)', subtitleRemove: 'Remove subtitles', originalSize: 'Original', compressedSize: 'Compressed', reduction: 'Reduction', estimatedQuality: 'Estimated quality', processed: 'Processed', analyzing: 'Analyzing…', compressing: 'Compressing…', finishing: 'Finishing…', smaller: 'smaller', failed: 'The conversion could not be completed.',
     converters: {
       mp4: { defaultProfile: 'quality', dropTitle: 'Convert videos to MP4', dropHint: 'drop a video or click to browse', action: 'Convert to MP4', format: 'MP4', profiles: [{ id: 'quality', name: 'High quality', detail: 'Same resolution' }, { id: 'light', name: 'Lightweight', detail: 'Max. 720p · HQ audio' }] },
       mp3: { defaultProfile: 'high', dropTitle: 'Drop an audio file or video', dropHint: 'convert audio or extract it from video', action: 'Convert to MP3', format: 'MP3', profiles: [{ id: 'high', name: 'High quality', detail: '320 kbps' }, { id: 'light', name: 'Lightweight', detail: '128 kbps' }] },
       jpg: { defaultProfile: 'high', dropTitle: 'Convert images to JPG', dropHint: 'JPG · PNG · WEBP · BMP · TIFF', action: 'Convert to JPG', format: 'JPG', profiles: [{ id: 'high', name: 'High quality', detail: 'Original dimensions' }, { id: 'light', name: 'Lightweight', detail: 'Max. 1280 px' }] },
-      pdf: { defaultProfile: 'high', dropTitle: 'Convert files to PDF', dropHint: 'JPG · PDF · DOC · DOCX · TXT · RTF · ODT', action: 'Compress PDF', format: 'PDF', profiles: [{ id: 'high', name: 'High quality', detail: 'Best quality' }, { id: 'light', name: 'Lightweight', detail: 'Smallest file' }] }
+      pdf: { defaultProfile: 'high', dropTitle: 'Convert files to PDF', dropHint: 'JPG · PDF · DOC · DOCX · TXT · RTF · ODT', action: 'Compress PDF', format: 'PDF', profiles: [{ id: 'high', name: 'High quality', detail: 'Best quality' }, { id: 'light', name: 'Lightweight', detail: 'Smallest file' }] },
+      pdfpro: { defaultProfile: 'edit', dropTitle: 'Edit and organize a PDF', dropHint: 'open a document to begin', action: 'Save a copy', format: 'PDF', profiles: [] }
     }
   }
 };
@@ -175,6 +177,14 @@ function resetFile() {
 
 function selectConverter(converterId) {
   if (!copy().converters[converterId] || state.converting || converterId === state.converter) return;
+  if (state.converter === 'pdfpro' && converterId !== 'pdfpro') {
+    Promise.resolve(window.pdfPro?.requestLeave?.() ?? true).then((canLeave) => {
+      if (!canLeave) return;
+      state.converter = '__leaving_pdfpro__';
+      selectConverter(converterId);
+    });
+    return;
+  }
   state.converter = converterId;
   state.profile = currentConverter().defaultProfile;
   document.querySelectorAll('[data-converter]').forEach((tab) => {
@@ -183,6 +193,16 @@ function selectConverter(converterId) {
     tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
     tab.tabIndex = isActive ? 0 : -1;
   });
+  if (converterId === 'pdfpro') {
+    document.body.classList.add('pdf-pro-mode');
+    $('pdfProSection').classList.remove('hidden');
+    window.pantoraya.setWindowMode('pdf-pro').catch(() => {});
+    window.pdfPro?.enter();
+    return;
+  }
+  document.body.classList.remove('pdf-pro-mode');
+  $('pdfProSection').classList.add('hidden');
+  window.pantoraya.setWindowMode('compact').catch(() => {});
   $('dropTitle').textContent = currentConverter().dropTitle;
   $('dropHint').textContent = currentConverter().dropHint;
   dropZone.setAttribute('aria-label', currentConverter().dropTitle);
@@ -234,6 +254,7 @@ function applyLanguage(language) {
   if (!state.converting) $('progressLabel').textContent = copy().preparing;
   renderProfiles();
   applyTheme(localStorage.getItem('pantoraya-theme') || 'dark');
+  window.pdfPro?.setLanguage(language);
   window.pantoraya.setLanguage(language).catch(() => {});
 }
 

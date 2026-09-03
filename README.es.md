@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/icons/icon.png" width="112" alt="Ícono de Pantoraya">
+  <img src="assets/icons/pantoraya.png" width="112" alt="Ícono de Pantoraya">
 </p>
 
 <h1 align="center">Pantoraya</h1>
@@ -31,6 +31,8 @@ La aplicación mantiene un enfoque deliberadamente sencillo. No hay cuentas, sus
 - Compresión PDF local en alta calidad o versión liviana
 - Conversión de DOC, DOCX, TXT, RTF y ODT a PDF dentro del mismo espacio PDF
 - Conversión directa de JPG/JPEG a PDF sin cambiar de espacio
+- PDF Pro para organizar, leer, reordenar, rotar, eliminar, añadir, reemplazar y extraer páginas localmente
+- Miniaturas laterales, selección múltiple, undo/redo, zoom, pantalla completa y “Guardar una copia”
 - Estimación del peso final antes de convertir
 - Miniaturas proporcionales, sin deformación
 - Progreso en tiempo real y sonido sutil al finalizar
@@ -46,6 +48,7 @@ La aplicación mantiene un enfoque deliberadamente sencillo. No hay cuentas, sus
 | MP3 | MP3, WAV, M4A, AAC, FLAC, OGG, OPUS, WMA, AIFF y archivos de video | MP3 | 320 kbps · 128 kbps |
 | JPG | JPG, JPEG, PNG, WEBP, BMP, TIFF | JPG | Dimensiones originales · Liviana 1280 px |
 | PDF | PDF, JPG, JPEG, DOC, DOCX, TXT, RTF, ODT | PDF optimizado o convertido | Alta calidad · Liviana para PDF; conversión directa de imágenes y documentos |
+| PDF Pro | PDF, JPG, JPEG, PNG | Copia PDF organizada | Añadir · reemplazar · reordenar · rotar · eliminar · extraer |
 
 ## Cómo añadir subtítulos SRT
 
@@ -92,7 +95,7 @@ El instalador se genera dentro de `dist/`.
 
 La compilación necesita Xcode Command Line Tools y `pkg-config`. Pantoraya compila su propio motor FFmpeg estático, verificado por checksum y obtenido de las fuentes oficiales; por eso la primera compilación tarda unos minutos. Instala el pequeño requisito con `brew install pkgconf`.
 
-Las operaciones PDF se registran en `src/main/converters/pdf.js`, dejando el módulo preparado para futuras funciones de unir, dividir, rotar y convertir imágenes sin acoplarlas a la interfaz. macOS usa PDFKit, AppKit y Quick Look; Windows usa pdf-lib y la automatización local de Microsoft Word.
+La conversión PDF se mantiene en `src/main/converters/pdf.js`; PDF Pro usa una sesión no destructiva separada, pdf-lib para reconstruir la copia y PDF.js para renderizar páginas localmente en macOS y Windows.
 
 ## Colaboradores
 
