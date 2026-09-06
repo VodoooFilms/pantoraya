@@ -1,40 +1,31 @@
 const { app, BrowserWindow, Menu, dialog, ipcMain, shell, nativeImage } = require('electron');
 const { spawn } = require('child_process');
 const fs = require('fs');
-const os = require('os');
 const path = require('path');
 const { pathToFileURL } = require('url');
-const { compressPdfOnWindows, convertJpegToPdf, keepSmallestPdf, startPdfTool } = require('./converters/pdf');
-const { convertWordToPdf } = require('./converters/document');
-const { PdfProSessionManager, IMPORT_EXTENSIONS } = require('./pdf-pro/session-manager');
 
 let mainWindow = null;
 let activeConversion = null;
 let currentLanguage = 'es';
-let pdfProDirty = false;
-let allowWindowClose = false;
-let pdfProExportSession = null;
-const temporaryOutputs = new Set();
-const pdfProSessions = new PdfProSessionManager();
 
 const TEXT = {
   es: {
-    about: 'Acerca de Pantoraya', aboutCredit: 'Pantoraya es un conversor gratuito y de código abierto para macOS y Windows. Convierte video a MP4, extrae y comprime audio en MP3, optimiza imágenes JPG, reduce archivos PDF y convierte documentos a PDF. Todo ocurre de forma privada y local, sin cuentas, anuncios ni cargas a la nube.', hide: 'Ocultar Pantoraya', hideOthers: 'Ocultar otras', unhide: 'Mostrar todo', quit: 'Salir de Pantoraya',
+    about: 'Acerca de Pantoraya', aboutCredit: 'Pantoraya es un conversor gratuito y de código abierto para macOS y Windows. Convierte video a MP4, extrae y comprime audio en MP3 y optimiza imágenes JPG. Todo ocurre de forma privada y local, sin cuentas, anuncios ni cargas a la nube.', hide: 'Ocultar Pantoraya', hideOthers: 'Ocultar otras', unhide: 'Mostrar todo', quit: 'Salir de Pantoraya',
     edit: 'Edición', undo: 'Deshacer', redo: 'Rehacer', cut: 'Cortar', copy: 'Copiar', paste: 'Pegar', selectAll: 'Seleccionar todo',
     window: 'Ventana', minimize: 'Minimizar', zoom: 'Zoom', front: 'Traer todo al frente',
-    selectTitle: 'Selecciona uno o varios archivos', outputFolderTitle: 'Selecciona la carpeta de salida', compatible: 'Archivos compatibles', videos: 'Videos', audio: 'Audio', images: 'Imágenes', pdfs: 'PDF y documentos',
+    selectTitle: 'Selecciona uno o varios archivos', outputFolderTitle: 'Selecciona la carpeta de salida', compatible: 'Archivos compatibles', videos: 'Videos', audio: 'Audio', images: 'Imágenes',
     unsupported: 'El archivo no tiene un formato compatible.', active: 'Ya hay una conversión en curso.', missing: 'No se encontró un archivo compatible.',
     invalidProfile: 'Perfil de compresión no válido.', ffmpegMissing: 'Pantoraya no encontró su motor FFmpeg. Reinstala la aplicación.',
-    quality: 'Alta calidad', light: 'Liviana', converting: 'Convirtiendo', pdfCompressing: 'Comprimiendo PDF', docConverting: 'Convirtiendo documento a PDF', imageConverting: 'Convirtiendo JPG a PDF', pdfHelperMissing: 'No se encontró el módulo PDF. Reinstala Pantoraya.', pdfFailed: 'No se pudo procesar el documento.', documentEngineMissing: 'Para convertir documentos en Windows se necesita Microsoft Word instalado.', pdfLocked: 'Los PDF protegidos con contraseña todavía no son compatibles.', startError: 'No se pudo iniciar FFmpeg', cancelled: 'Conversión cancelada.', ffmpegExit: 'FFmpeg terminó con código'
+    quality: 'Alta calidad', light: 'Liviana', converting: 'Convirtiendo', startError: 'No se pudo iniciar FFmpeg', cancelled: 'Conversión cancelada.', ffmpegExit: 'FFmpeg terminó con código'
   },
   en: {
-    about: 'About Pantoraya', aboutCredit: 'Pantoraya is a free, open-source converter for macOS and Windows. It converts video to MP4, extracts and compresses audio as MP3, optimizes JPG images, reduces PDF file sizes, and converts documents to PDF. Everything happens privately and locally, with no accounts, ads, or cloud uploads.', hide: 'Hide Pantoraya', hideOthers: 'Hide Others', unhide: 'Show All', quit: 'Quit Pantoraya',
+    about: 'About Pantoraya', aboutCredit: 'Pantoraya is a free, open-source converter for macOS and Windows. It converts video to MP4, extracts and compresses audio as MP3, and optimizes JPG images. Everything happens privately and locally, with no accounts, ads, or cloud uploads.', hide: 'Hide Pantoraya', hideOthers: 'Hide Others', unhide: 'Show All', quit: 'Quit Pantoraya',
     edit: 'Edit', undo: 'Undo', redo: 'Redo', cut: 'Cut', copy: 'Copy', paste: 'Paste', selectAll: 'Select All',
     window: 'Window', minimize: 'Minimize', zoom: 'Zoom', front: 'Bring All to Front',
-    selectTitle: 'Select one or more files', outputFolderTitle: 'Select the output folder', compatible: 'Compatible files', videos: 'Videos', audio: 'Audio', images: 'Images', pdfs: 'PDF and documents',
+    selectTitle: 'Select one or more files', outputFolderTitle: 'Select the output folder', compatible: 'Compatible files', videos: 'Videos', audio: 'Audio', images: 'Images',
     unsupported: 'The file format is not supported.', active: 'A conversion is already in progress.', missing: 'No compatible file was found.',
     invalidProfile: 'Invalid compression profile.', ffmpegMissing: 'Pantoraya could not find its FFmpeg engine. Reinstall the application.',
-    quality: 'High quality', light: 'Lightweight', converting: 'Converting', pdfCompressing: 'Compressing PDF', docConverting: 'Converting document to PDF', imageConverting: 'Converting JPG to PDF', pdfHelperMissing: 'The PDF module is missing. Reinstall Pantoraya.', pdfFailed: 'The document could not be processed.', documentEngineMissing: 'Microsoft Word must be installed to convert documents on Windows.', pdfLocked: 'Password-protected PDFs are not supported yet.', startError: 'Could not start FFmpeg', cancelled: 'Conversion cancelled.', ffmpegExit: 'FFmpeg exited with code'
+    quality: 'High quality', light: 'Lightweight', converting: 'Converting', startError: 'Could not start FFmpeg', cancelled: 'Conversion cancelled.', ffmpegExit: 'FFmpeg exited with code'
   }
 };
 
@@ -45,11 +36,8 @@ function t(key) {
 const VIDEO_EXTENSIONS = new Set(['.mov', '.mp4', '.m4v', '.avi', '.mkv', '.webm']);
 const AUDIO_EXTENSIONS = new Set(['.mp3', '.wav', '.m4a', '.aac', '.flac', '.ogg', '.opus', '.wma', '.aif', '.aiff']);
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.bmp', '.tif', '.tiff']);
-const PDF_IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg']);
 const SUBTITLE_EXTENSIONS = new Set(['.srt']);
-const PDF_EXTENSIONS = new Set(['.pdf']);
-const DOCUMENT_EXTENSIONS = new Set(['.doc', '.docx', '.txt', '.rtf', '.odt']);
-const ALL_EXTENSIONS = new Set([...VIDEO_EXTENSIONS, ...AUDIO_EXTENSIONS, ...IMAGE_EXTENSIONS, ...PDF_EXTENSIONS, ...DOCUMENT_EXTENSIONS]);
+const ALL_EXTENSIONS = new Set([...VIDEO_EXTENSIONS, ...AUDIO_EXTENSIONS, ...IMAGE_EXTENSIONS]);
 const CONVERTERS = {
   mp4: {
     inputExtensions: VIDEO_EXTENSIONS,
@@ -101,31 +89,6 @@ const CONVERTERS = {
         args: ['-filter_complex', '[0:v]scale=w=min(1280\\,iw):h=min(1280\\,ih):force_original_aspect_ratio=decrease,format=rgba[fg];color=c=white:s=16x16[bg];[bg][fg]scale2ref[bg][fg];[bg][fg]overlay=shortest=1,format=yuvj420p[v]', '-map', '[v]', '-c:v', 'mjpeg', '-q:v', '7']
       }
     }
-  },
-  pdf: {
-    inputExtensions: new Set([...PDF_EXTENSIONS, ...DOCUMENT_EXTENSIONS, ...PDF_IMAGE_EXTENSIONS]),
-    outputExtension: '.pdf',
-    engine: 'pdfkit',
-    profiles: {
-      high: {
-        suffix: { es: '_comprimido', en: '_compressed' },
-        labelKey: 'quality',
-        helperProfile: 'high'
-      },
-      light: {
-        suffix: { es: '_liviano', en: '_light' },
-        labelKey: 'light',
-        helperProfile: 'light'
-      },
-      document: {
-        suffix: { es: '_pdf', en: '_pdf' },
-        helperProfile: 'document'
-      },
-      image: {
-        suffix: { es: '_pdf', en: '_pdf' },
-        helperProfile: 'image'
-      }
-    }
   }
 };
 
@@ -153,8 +116,6 @@ function mediaTypeForFile(filePath) {
   if (VIDEO_EXTENSIONS.has(extension)) return 'video';
   if (AUDIO_EXTENSIONS.has(extension)) return 'audio';
   if (IMAGE_EXTENSIONS.has(extension)) return 'image';
-  if (PDF_EXTENSIONS.has(extension)) return 'pdf';
-  if (DOCUMENT_EXTENSIONS.has(extension)) return 'document';
   return null;
 }
 
@@ -169,20 +130,6 @@ function uniqueOutputPath(inputPath, converter, profile, outputDirectory = null)
     count += 1;
   }
   return candidate;
-}
-
-async function temporaryPdfOutput(suggestedPath) {
-  const directory = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'pantoraya-output-'));
-  const outputPath = path.join(directory, path.basename(suggestedPath));
-  temporaryOutputs.add(outputPath);
-  return outputPath;
-}
-
-async function discardTemporaryOutput(filePath) {
-  if (!temporaryOutputs.has(filePath)) return false;
-  temporaryOutputs.delete(filePath);
-  await fs.promises.rm(path.dirname(filePath), { recursive: true, force: true });
-  return true;
 }
 
 function parseTimestamp(value) {
@@ -246,8 +193,7 @@ async function thumbnailForFile(filePath, mediaType, media) {
 
 async function fileDetails(filePath) {
   const mediaType = mediaTypeForFile(filePath);
-  const mediaPromise = mediaType === 'pdf' || mediaType === 'document' ? Promise.resolve({ duration: 0, width: 0, height: 0 }) : probeFile(filePath);
-  const [stats, media] = await Promise.all([fs.promises.stat(filePath), mediaPromise]);
+  const [stats, media] = await Promise.all([fs.promises.stat(filePath), probeFile(filePath)]);
   const thumbnail = await thumbnailForFile(filePath, mediaType, media);
   return { path: filePath, name: path.basename(filePath), size: stats.size, mediaType, thumbnail, ...media };
 }
@@ -298,7 +244,6 @@ async function requestInitialFolderPermissions() {
 
 function createWindow() {
   const isMac = process.platform === 'darwin';
-  allowWindowClose = false;
   mainWindow = new BrowserWindow({
     width: 410,
     height: 400,
@@ -329,37 +274,6 @@ function createWindow() {
   });
   mainWindow.webContents.session.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
   mainWindow.once('ready-to-show', () => mainWindow.show());
-  mainWindow.on('close', (event) => {
-    if (!pdfProDirty || allowWindowClose) return;
-    event.preventDefault();
-    const es = currentLanguage === 'es';
-    dialog.showMessageBox(mainWindow, {
-      type: 'warning',
-      message: es ? 'Hay cambios sin guardar' : 'You have unsaved changes',
-      detail: es ? 'Guarda una copia antes de cerrar Pantoraya.' : 'Save a copy before closing Pantoraya.',
-      buttons: [es ? 'Guardar una copia' : 'Save a copy', es ? 'Descartar' : 'Discard', es ? 'Cancelar' : 'Cancel'],
-      defaultId: 0,
-      cancelId: 2,
-      noLink: true
-    }).then(({ response }) => {
-      if (response === 0) send('pdf-pro-save-requested', {});
-      if (response === 1 && mainWindow && !mainWindow.isDestroyed()) {
-        pdfProDirty = false;
-        allowWindowClose = true;
-        mainWindow.close();
-      }
-    });
-  });
-  mainWindow.on('closed', () => { mainWindow = null; });
-}
-
-function setDockIcon() {
-  if (process.platform !== 'darwin') return;
-  const iconPath = app.isPackaged
-    ? path.join(process.resourcesPath, 'icons', 'pantoraya.png')
-    : path.join(__dirname, '../../assets/icons/pantoraya.png');
-  const icon = nativeImage.createFromPath(iconPath);
-  if (!icon.isEmpty()) app.dock.setIcon(icon);
 }
 
 function assertTrustedEvent(event) {
@@ -406,155 +320,7 @@ function updateAboutPanel() {
   });
 }
 
-async function runWindowsPdfConversion({ inputPath, outputPath, inputBytes, profile }) {
-  let cancelled = false;
-  activeConversion = {
-    outputPath,
-    cancel: () => { cancelled = true; }
-  };
-  send('conversion-status', { status: 'starting', message: `${t('pdfCompressing')} · ${t(profile.labelKey)}…` });
-  try {
-    await compressPdfOnWindows({
-      inputPath,
-      outputPath,
-      profileId: profile.helperProfile,
-      isCancelled: () => cancelled,
-      onProgress: (percent) => send('conversion-progress', { percent, timemark: '' })
-    });
-    const outputBytes = (await keepSmallestPdf(inputPath, outputPath)).outputBytes;
-    playCompletionSound();
-    return { success: true, outputPath, outputBytes, inputBytes, converterId: 'pdf', profileId: profile.helperProfile };
-  } catch (error) {
-    await fs.promises.rm(outputPath, { force: true }).catch(() => {});
-    if (cancelled || error.code === 'CANCELLED') throw new Error(t('cancelled'));
-    if (error.code === 'PDF_LOCKED') throw new Error(t('pdfLocked'));
-    throw new Error(t('pdfFailed'));
-  } finally {
-    activeConversion = null;
-  }
-}
-
-function runPdfConversion({ inputPath, outputPath, inputBytes, profile }) {
-  return new Promise((resolve, reject) => {
-    let child;
-    let stderr = '';
-    let wasCancelled = false;
-    let settled = false;
-
-    try {
-      child = startPdfTool({
-        app,
-        toolId: profile.helperProfile === 'document' ? 'documentToPdf' : 'compress',
-        inputPath,
-        outputPath,
-        profileId: profile.helperProfile,
-        onProgress: (percent) => send('conversion-progress', { percent, timemark: '' })
-      });
-    } catch (error) {
-      reject(new Error(error.code === 'PDF_HELPER_MISSING' ? t('pdfHelperMissing') : t('pdfFailed')));
-      return;
-    }
-
-    activeConversion = {
-      child,
-      outputPath,
-      cancel: () => { wasCancelled = true; child.kill('SIGTERM'); }
-    };
-    const statusMessage = profile.helperProfile === 'document'
-      ? `${t('docConverting')}…`
-      : `${t('pdfCompressing')} · ${t(profile.labelKey)}…`;
-    send('conversion-status', { status: 'starting', message: statusMessage });
-
-    child.stderr.setEncoding('utf8');
-    child.stderr.on('data', (chunk) => { stderr = (stderr + chunk).slice(-8000); });
-    child.on('error', () => {
-      if (settled) return;
-      settled = true;
-      activeConversion = null;
-      reject(new Error(t('pdfFailed')));
-    });
-    child.on('close', async (code) => {
-      if (settled) return;
-      settled = true;
-      activeConversion = null;
-      if (wasCancelled) {
-        await fs.promises.rm(outputPath, { force: true }).catch(() => {});
-        reject(new Error(t('cancelled')));
-        return;
-      }
-      if (code !== 0) {
-        await fs.promises.rm(outputPath, { force: true }).catch(() => {});
-        reject(new Error(stderr.includes('Password-protected') ? t('pdfLocked') : t('pdfFailed')));
-        return;
-      }
-      const finalOutputBytes = profile.helperProfile === 'document'
-        ? (await fs.promises.stat(outputPath)).size
-        : (await keepSmallestPdf(inputPath, outputPath)).outputBytes;
-      send('conversion-progress', { percent: 100, timemark: '' });
-      playCompletionSound();
-      resolve({ success: true, outputPath, outputBytes: finalOutputBytes, inputBytes, converterId: 'pdf', profileId: profile.helperProfile });
-    });
-  });
-}
-
-async function runWordConversion({ inputPath, outputPath, inputBytes }) {
-  let child = null;
-  let cancelled = false;
-  activeConversion = {
-    outputPath,
-    cancel: () => {
-      cancelled = true;
-      if (child && !child.killed) child.kill('SIGTERM');
-    }
-  };
-  send('conversion-status', { status: 'starting', message: `${t('docConverting')}…` });
-  try {
-    await convertWordToPdf({
-      app,
-      inputPath,
-      outputPath,
-      onChild: (process) => { child = process; },
-      onProgress: (percent) => send('conversion-progress', { percent, timemark: '' })
-    });
-    if (cancelled) throw Object.assign(new Error(t('cancelled')), { code: 'CANCELLED' });
-    const outputBytes = (await fs.promises.stat(outputPath)).size;
-    playCompletionSound();
-    return { success: true, outputPath, outputBytes, inputBytes, converterId: 'pdf', profileId: 'document' };
-  } catch (error) {
-    await fs.promises.rm(outputPath, { force: true }).catch(() => {});
-    if (cancelled || error.code === 'CANCELLED') throw new Error(t('cancelled'));
-    if (error.code === 'DOCUMENT_ENGINE_MISSING') throw new Error(t('documentEngineMissing'));
-    throw new Error(t('pdfFailed'));
-  } finally {
-    activeConversion = null;
-  }
-}
-
-async function runImagePdfConversion({ inputPath, outputPath, inputBytes }) {
-  let cancelled = false;
-  activeConversion = { outputPath, cancel: () => { cancelled = true; } };
-  send('conversion-status', { status: 'starting', message: `${t('imageConverting')}…` });
-  try {
-    await convertJpegToPdf({
-      inputPath,
-      outputPath,
-      isCancelled: () => cancelled,
-      onProgress: (percent) => send('conversion-progress', { percent, timemark: '' })
-    });
-    const outputBytes = (await fs.promises.stat(outputPath)).size;
-    playCompletionSound();
-    return { success: true, outputPath, outputBytes, inputBytes, converterId: 'pdf', profileId: 'image' };
-  } catch (error) {
-    await fs.promises.rm(outputPath, { force: true }).catch(() => {});
-    if (cancelled || error.code === 'CANCELLED') throw new Error(t('cancelled'));
-    throw new Error(t('pdfFailed'));
-  } finally {
-    activeConversion = null;
-  }
-}
-
 app.whenReady().then(() => {
-  setDockIcon();
   updateAboutPanel();
   createMenu();
   createWindow();
@@ -566,12 +332,6 @@ app.on('activate', () => {
 });
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
-});
-app.on('before-quit', () => {
-  for (const filePath of temporaryOutputs) {
-    fs.rmSync(path.dirname(filePath), { recursive: true, force: true });
-  }
-  temporaryOutputs.clear();
 });
 
 ipcMain.handle('set-language', async (event, language) => {
@@ -594,8 +354,7 @@ ipcMain.handle('select-files', async (event, converterId) => {
       { name: t('compatible'), extensions: compatibleExtensions.map((extension) => extension.slice(1)) },
       { name: t('videos'), extensions: [...VIDEO_EXTENSIONS].map((extension) => extension.slice(1)) },
       { name: t('audio'), extensions: [...AUDIO_EXTENSIONS].map((extension) => extension.slice(1)) },
-      { name: t('images'), extensions: [...IMAGE_EXTENSIONS].map((extension) => extension.slice(1)) },
-      { name: t('pdfs'), extensions: ['pdf', 'doc', 'docx', 'txt', 'rtf', 'odt'] }
+      { name: t('images'), extensions: [...IMAGE_EXTENSIONS].map((extension) => extension.slice(1)) }
     ]
   });
   if (result.canceled || !result.filePaths.length) return [];
@@ -679,27 +438,8 @@ ipcMain.handle('convert-media', async (_event, inputPath, converterId, profileId
   const outputDirectory = typeof options.outputDirectory === 'string' && fs.existsSync(options.outputDirectory)
     ? options.outputDirectory
     : null;
-  const directOutput = options.directOutput === true;
-  const suggestedOutputPath = uniqueOutputPath(inputPath, converter, profile, outputDirectory);
-  const outputPath = converter.engine === 'pdfkit' && !directOutput ? await temporaryPdfOutput(suggestedOutputPath) : suggestedOutputPath;
+  const outputPath = uniqueOutputPath(inputPath, converter, profile, outputDirectory);
   const inputBytes = (await fs.promises.stat(inputPath)).size;
-  if (converter.engine === 'pdfkit') {
-    try {
-      if (profile.helperProfile === 'image') {
-        return { ...(await runImagePdfConversion({ inputPath, outputPath, inputBytes })), suggestedOutputPath };
-      }
-      if (profile.helperProfile === 'document' && (process.platform === 'win32' || ['.doc', '.docx'].includes(path.extname(inputPath).toLowerCase()))) {
-        return { ...(await runWordConversion({ inputPath, outputPath, inputBytes })), suggestedOutputPath };
-      }
-      if (process.platform === 'win32') {
-        return { ...(await runWindowsPdfConversion({ inputPath, outputPath, inputBytes, profile })), suggestedOutputPath };
-      }
-      return { ...(await runPdfConversion({ inputPath, outputPath, inputBytes, profile })), suggestedOutputPath };
-    } catch (error) {
-      if (temporaryOutputs.has(outputPath)) await discardTemporaryOutput(outputPath);
-      throw error;
-    }
-  }
   const ffmpegPath = getFfmpegPath();
   if (!ffmpegPath) throw new Error(t('ffmpegMissing'));
   const streamArgs = converterId === 'mp3'
@@ -772,217 +512,4 @@ ipcMain.handle('cancel-conversion', async (event) => {
 ipcMain.handle('show-in-folder', async (_event, filePath) => {
   assertTrustedEvent(_event);
   if (typeof filePath === 'string' && fs.existsSync(filePath)) shell.showItemInFolder(filePath);
-});
-
-ipcMain.handle('save-output-as', async (_event, filePath, suggestedPath) => {
-  assertTrustedEvent(_event);
-  if (typeof filePath !== 'string' || !temporaryOutputs.has(filePath) || path.extname(filePath).toLowerCase() !== '.pdf' || !fs.existsSync(filePath)) {
-    throw new Error(t('missing'));
-  }
-  const result = await dialog.showSaveDialog(mainWindow, {
-    title: currentLanguage === 'es' ? 'Guardar PDF como' : 'Save PDF As',
-    defaultPath: typeof suggestedPath === 'string' ? suggestedPath : path.basename(filePath),
-    filters: [{ name: 'PDF', extensions: ['pdf'] }]
-  });
-  if (result.canceled || !result.filePath) return null;
-  await fs.promises.copyFile(filePath, result.filePath);
-  await discardTemporaryOutput(filePath);
-  return result.filePath;
-});
-
-ipcMain.handle('discard-output', async (event, filePath) => {
-  assertTrustedEvent(event);
-  return typeof filePath === 'string' ? discardTemporaryOutput(filePath) : false;
-});
-
-function pdfProError(error) {
-  const es = currentLanguage === 'es';
-  if (error?.code === 'PDF_LOCKED' || error?.message === 'PDF_LOCKED') {
-    return new Error(es ? 'Los PDF protegidos todavía no son compatibles.' : 'Protected PDFs are not supported yet.');
-  }
-  if (error?.code === 'CANCELLED' || error?.message === 'CANCELLED') {
-    return new Error(es ? 'Exportación cancelada.' : 'Export cancelled.');
-  }
-  if (error?.code === 'PDF_INVALID' || error?.message === 'PDF_INVALID') {
-    return new Error(es ? 'El PDF está dañado o no se pudo leer.' : 'The PDF is damaged or could not be read.');
-  }
-  return error instanceof Error ? error : new Error(es ? 'No se pudo procesar el PDF.' : 'The PDF could not be processed.');
-}
-
-function updatePdfProDirty(manifest) {
-  pdfProDirty = Boolean(manifest?.dirty);
-  return manifest;
-}
-
-ipcMain.handle('set-window-mode', async (event, mode) => {
-  assertTrustedEvent(event);
-  if (!mainWindow || mainWindow.isDestroyed() || !['compact', 'pdf-pro'].includes(mode)) return false;
-  if (mode === 'pdf-pro') {
-    mainWindow.setResizable(true);
-    mainWindow.setMaximizable(true);
-    mainWindow.setMinimumSize(640, 520);
-    mainWindow.setMaximumSize(10000, 10000);
-    mainWindow.setContentSize(640, 520, true);
-  } else {
-    if (mainWindow.isFullScreen()) mainWindow.setFullScreen(false);
-    mainWindow.setMinimumSize(410, 400);
-    mainWindow.setMaximumSize(410, 400);
-    mainWindow.setContentSize(410, 400, true);
-    mainWindow.setResizable(false);
-    mainWindow.setMaximizable(false);
-  }
-  mainWindow.center();
-  return true;
-});
-
-ipcMain.handle('pdf-pro-toggle-fullscreen', async (event) => {
-  assertTrustedEvent(event);
-  if (!mainWindow || mainWindow.isDestroyed()) return false;
-  mainWindow.setFullScreen(!mainWindow.isFullScreen());
-  return mainWindow.isFullScreen();
-});
-
-ipcMain.handle('pdf-pro-open', async (event) => {
-  assertTrustedEvent(event);
-  const result = await dialog.showOpenDialog(mainWindow, {
-    title: currentLanguage === 'es' ? 'Abrir PDF en PDF Pro' : 'Open PDF in PDF Pro',
-    properties: ['openFile'],
-    filters: [{ name: 'PDF', extensions: ['pdf'] }]
-  });
-  if (result.canceled || !result.filePaths[0]) return null;
-  try {
-    const manifest = await pdfProSessions.create(result.filePaths[0]);
-    pdfProDirty = false;
-    return manifest;
-  } catch (error) {
-    throw pdfProError(error);
-  }
-});
-
-ipcMain.handle('pdf-pro-source', async (event, sessionId, sourceId) => {
-  assertTrustedEvent(event);
-  try {
-    return pdfProSessions.sourceBytes(sessionId, sourceId);
-  } catch (error) {
-    throw pdfProError(error);
-  }
-});
-
-ipcMain.handle('pdf-pro-command', async (event, sessionId, command) => {
-  assertTrustedEvent(event);
-  try {
-    return updatePdfProDirty(pdfProSessions.apply(sessionId, command));
-  } catch (error) {
-    throw pdfProError(error);
-  }
-});
-
-ipcMain.handle('pdf-pro-undo', async (event, sessionId) => {
-  assertTrustedEvent(event);
-  try { return updatePdfProDirty(pdfProSessions.undo(sessionId)); }
-  catch (error) { throw pdfProError(error); }
-});
-
-ipcMain.handle('pdf-pro-redo', async (event, sessionId) => {
-  assertTrustedEvent(event);
-  try { return updatePdfProDirty(pdfProSessions.redo(sessionId)); }
-  catch (error) { throw pdfProError(error); }
-});
-
-ipcMain.handle('pdf-pro-import', async (event, sessionId, options = {}) => {
-  assertTrustedEvent(event);
-  options = options && typeof options === 'object' ? options : {};
-  const replacing = typeof options.replacePageId === 'string';
-  const result = await dialog.showOpenDialog(mainWindow, {
-    title: replacing
-      ? (currentLanguage === 'es' ? 'Reemplazar página' : 'Replace page')
-      : (currentLanguage === 'es' ? 'Añadir páginas' : 'Add pages'),
-    properties: replacing ? ['openFile'] : ['openFile', 'multiSelections'],
-    filters: [
-      { name: currentLanguage === 'es' ? 'PDF e imágenes' : 'PDF and images', extensions: [...IMPORT_EXTENSIONS].map((extension) => extension.slice(1)) },
-      { name: 'PDF', extensions: ['pdf'] },
-      { name: currentLanguage === 'es' ? 'Imágenes' : 'Images', extensions: ['jpg', 'jpeg', 'png'] }
-    ]
-  });
-  if (result.canceled || !result.filePaths.length) return null;
-  try {
-    return updatePdfProDirty(await pdfProSessions.import(sessionId, result.filePaths, options.insertIndex, options.replacePageId));
-  } catch (error) {
-    throw pdfProError(error);
-  }
-});
-
-async function exportPdfPro(sessionId, pageIds = null) {
-  if (pdfProExportSession) throw new Error(currentLanguage === 'es' ? 'Ya hay una exportación en curso.' : 'An export is already running.');
-  const manifest = pdfProSessions.manifest(sessionId);
-  const originalExtension = path.extname(manifest.name);
-  const baseName = path.basename(manifest.name, originalExtension);
-  const suffix = pageIds?.length ? (currentLanguage === 'es' ? '_paginas' : '_pages') : (currentLanguage === 'es' ? '_editado' : '_edited');
-  const result = await dialog.showSaveDialog(mainWindow, {
-    title: pageIds?.length
-      ? (currentLanguage === 'es' ? 'Extraer páginas' : 'Extract pages')
-      : (currentLanguage === 'es' ? 'Guardar una copia' : 'Save a copy'),
-    defaultPath: `${baseName}${suffix}.pdf`,
-    filters: [{ name: 'PDF', extensions: ['pdf'] }]
-  });
-  if (result.canceled || !result.filePath) return null;
-  pdfProExportSession = sessionId;
-  try {
-    const exported = await pdfProSessions.export(sessionId, result.filePath, pageIds, (percent) => {
-      send('pdf-pro-progress', { sessionId, percent });
-    });
-    if (!pageIds?.length) updatePdfProDirty(exported.manifest);
-    playCompletionSound();
-    return exported;
-  } catch (error) {
-    throw pdfProError(error);
-  } finally {
-    pdfProExportSession = null;
-  }
-}
-
-ipcMain.handle('pdf-pro-export', async (event, sessionId) => {
-  assertTrustedEvent(event);
-  return exportPdfPro(sessionId);
-});
-
-ipcMain.handle('pdf-pro-extract', async (event, sessionId, pageIds) => {
-  assertTrustedEvent(event);
-  if (!Array.isArray(pageIds) || !pageIds.length || pageIds.some((id) => typeof id !== 'string')) {
-    throw new Error(currentLanguage === 'es' ? 'Selecciona una o varias páginas.' : 'Select one or more pages.');
-  }
-  return exportPdfPro(sessionId, pageIds);
-});
-
-ipcMain.handle('pdf-pro-cancel-export', async (event, sessionId) => {
-  assertTrustedEvent(event);
-  return pdfProSessions.cancelExport(sessionId);
-});
-
-ipcMain.handle('pdf-pro-show-output', async (event, filePath) => {
-  assertTrustedEvent(event);
-  if (typeof filePath === 'string' && path.extname(filePath).toLowerCase() === '.pdf' && fs.existsSync(filePath)) {
-    shell.showItemInFolder(filePath);
-    return true;
-  }
-  return false;
-});
-
-ipcMain.handle('pdf-pro-close-session', async (event, sessionId, discard = false) => {
-  assertTrustedEvent(event);
-  if (!discard && pdfProDirty) {
-    const result = await dialog.showMessageBox(mainWindow, {
-      type: 'warning',
-      message: currentLanguage === 'es' ? '¿Descartar los cambios?' : 'Discard changes?',
-      detail: currentLanguage === 'es' ? 'El PDF original no se modificará.' : 'The original PDF will not be modified.',
-      buttons: [currentLanguage === 'es' ? 'Seguir editando' : 'Keep editing', currentLanguage === 'es' ? 'Descartar' : 'Discard'],
-      defaultId: 0,
-      cancelId: 0,
-      noLink: true
-    });
-    if (result.response !== 1) return false;
-  }
-  pdfProDirty = false;
-  pdfProSessions.close(sessionId);
-  return true;
 });

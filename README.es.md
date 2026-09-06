@@ -6,7 +6,7 @@
 
 <p align="center">
   Conversión privada de archivos para macOS y Windows.<br>
-  Video, audio, imágenes y PDF — procesados localmente, nunca subidos.
+  Video, audio e imágenes — procesados localmente, nunca subidos.
 </p>
 
 <p align="center">
@@ -17,22 +17,17 @@
 
 ## ¿Qué es Pantoraya?
 
-Pantoraya es un conversor de archivos pequeño, gratuito y de código abierto diseñado para macOS y Windows. Arrastra un archivo y la aplicación seleccionará automáticamente el espacio correcto: MP4 para video, MP3 para audio, JPG para imágenes o PDF para comprimir PDFs y convertir documentos Word.
+Pantoraya es un conversor de archivos pequeño, gratuito y de código abierto diseñado para macOS y Windows. Arrastra un archivo y la aplicación seleccionará automáticamente el espacio correcto: MP4 para video, MP3 para audio o JPG para imágenes.
 
-La aplicación mantiene un enfoque deliberadamente sencillo. No hay cuentas, suscripciones, cargas a la nube, publicidad ni paneles complicados. Sus motores de conversión trabajan completamente en tu computadora. Los resultados multimedia se guardan junto al original; los PDF usan el diálogo nativo Guardar como.
+La aplicación mantiene un enfoque deliberadamente sencillo. No hay cuentas, suscripciones, cargas a la nube, publicidad ni paneles complicados. Sus motores de conversión trabajan completamente en tu computadora y los resultados se guardan junto al original.
 
 ## Funciones principales
 
-- Detección automática de video, audio, imágenes y PDF
+- Detección automática de video, audio e imágenes
 - Conversión MP4 en alta calidad o versión liviana de hasta 720p
 - Pista SRT opcional integrada al MP4
 - Conversión MP3 y extracción de audio desde video a 320 o 128 kbps
 - Compresión JPG conservando dimensiones o reduciendo a un máximo de 1280 px
-- Compresión PDF local en alta calidad o versión liviana
-- Conversión de DOC, DOCX, TXT, RTF y ODT a PDF dentro del mismo espacio PDF
-- Conversión directa de JPG/JPEG a PDF sin cambiar de espacio
-- PDF Pro para organizar, leer, reordenar, rotar, eliminar, añadir, reemplazar y extraer páginas localmente
-- Miniaturas laterales, selección múltiple, undo/redo, zoom, pantalla completa y “Guardar una copia”
 - Estimación del peso final antes de convertir
 - Miniaturas proporcionales, sin deformación
 - Progreso en tiempo real y sonido sutil al finalizar
@@ -47,8 +42,6 @@ La aplicación mantiene un enfoque deliberadamente sencillo. No hay cuentas, sus
 | MP4 | MOV, MP4, M4V, AVI, MKV, WEBM + SRT opcional | MP4 H.264 + AAC + subtítulos opcionales | Alta calidad · Liviana 720p |
 | MP3 | MP3, WAV, M4A, AAC, FLAC, OGG, OPUS, WMA, AIFF y archivos de video | MP3 | 320 kbps · 128 kbps |
 | JPG | JPG, JPEG, PNG, WEBP, BMP, TIFF | JPG | Dimensiones originales · Liviana 1280 px |
-| PDF | PDF, JPG, JPEG, DOC, DOCX, TXT, RTF, ODT | PDF optimizado o convertido | Alta calidad · Liviana para PDF; conversión directa de imágenes y documentos |
-| PDF Pro | PDF, JPG, JPEG, PNG | Copia PDF organizada | Añadir · reemplazar · reordenar · rotar · eliminar · extraer |
 
 ## Cómo añadir subtítulos SRT
 
@@ -58,7 +51,7 @@ La opción SRT está disponible tanto en macOS como en Windows. Selecciona el es
 
 Pantoraya es compatible con Windows 10/11 de 64 bits y con Macs Apple Silicon que ejecuten macOS 13.4 o posterior.
 
-En Windows, descarga y ejecuta `Pantoraya-1.3.0-x64.exe`. El instalador permite elegir la carpeta y crea accesos directos. Para convertir DOC, DOCX, TXT, RTF u ODT se necesita Microsoft Word instalado. Las compilaciones comunitarias de Windows aún no están firmadas, por lo que SmartScreen puede mostrar una advertencia.
+En Windows, descarga y ejecuta `Pantoraya-1.3.0-x64.exe`. El instalador permite elegir la carpeta y crea accesos directos. La conversión multimedia y de imágenes funciona con los motores incluidos. Las compilaciones comunitarias de Windows aún no están firmadas, por lo que SmartScreen puede mostrar una advertencia.
 
 En macOS:
 
@@ -95,8 +88,6 @@ El instalador se genera dentro de `dist/`.
 
 La compilación necesita Xcode Command Line Tools y `pkg-config`. Pantoraya compila su propio motor FFmpeg estático, verificado por checksum y obtenido de las fuentes oficiales; por eso la primera compilación tarda unos minutos. Instala el pequeño requisito con `brew install pkgconf`.
 
-La conversión PDF se mantiene en `src/main/converters/pdf.js`; PDF Pro usa una sesión no destructiva separada, pdf-lib para reconstruir la copia y PDF.js para renderizar páginas localmente en macOS y Windows.
-
 ## Colaboradores
 
 <a href="https://github.com/ayarblasco-create">
@@ -113,7 +104,6 @@ Ideas de producto y UX
 - H.264 y AAC para MP4
 - LAME MP3
 - MJPEG para salida JPG
-- Apple PDFKit y AppKit para procesar PDF y documentos de forma nativa
 
 ## Contribuir
 

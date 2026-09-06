@@ -9,8 +9,6 @@ its libraries retain their own licenses.
 - x264 revision `b35605ace3ddf7c1a5d67a2eb553f034aef41d55` — GPL-2.0-or-later — https://code.videolan.org/videolan/x264
 - LAME 3.100 — LGPL-2.0-or-later — https://downloads.sourceforge.net/project/lame/lame/3.100/lame-3.100.tar.gz
 - ShareX FFmpeg 8.1 Windows build — GPL-3.0 — https://github.com/ShareX/FFmpeg/releases/tag/v8.1
-- pdf-lib 1.17.1 — MIT — https://github.com/Hopding/pdf-lib
-- PDF.js 5.4.149 — Apache-2.0 — https://github.com/mozilla/pdf.js
 
 The exact, checksum-verified build is reproducible with `npm run build:ffmpeg`. The
 corresponding license texts are copied into the application during that build and are

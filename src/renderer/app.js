@@ -1,26 +1,22 @@
 const COPY = {
   es: {
-    converterTabs: 'Tipo de conversión', tabNames: { mp4: 'MP4', mp3: 'MP3', jpg: 'JPG', pdf: 'PDF', pdfpro: 'PDF PRO' }, language: 'Idioma', switchLanguage: 'Cambiar a inglés', lightTheme: 'Cambiar a modo claro', darkTheme: 'Cambiar a modo oscuro',
+    converterTabs: 'Tipo de conversión', tabNames: { mp4: 'MP4', mp3: 'MP3', jpg: 'JPG' }, language: 'Idioma', switchLanguage: 'Cambiar a inglés', lightTheme: 'Cambiar a modo claro', darkTheme: 'Cambiar a modo oscuro',
     original: 'Original', remove: 'Quitar archivo', quality: 'Calidad de salida', estimate: 'Estimado', estimateTitle: 'Peso final estimado; puede variar según el contenido',
-    preparing: 'Preparando…', ready: 'Listo', cancel: 'Cancelar', reveal: 'Mostrar en Finder', saveAs: 'Guardar como…', anotherPdf: 'Comprimir otro PDF', anotherDocument: 'Convertir otro documento', anotherImage: 'Convertir otro JPG', docAction: 'Convertir a PDF', imageAction: 'Convertir JPG a PDF', subtitleAdd: '+ Añadir subtítulos SRT', subtitleOptional: '(opcional)', subtitleRemove: 'Quitar subtítulos', originalSize: 'Original', compressedSize: 'Comprimido', reduction: 'Reducción', estimatedQuality: 'Calidad estimada', processed: 'Procesado', analyzing: 'Analizando…', compressing: 'Comprimiendo…', finishing: 'Finalizando…', smaller: 'más pequeño', failed: 'La conversión no pudo completarse.',
+    preparing: 'Preparando…', ready: 'Listo', cancel: 'Cancelar', reveal: 'Mostrar en Finder', another: 'Convertir otro', anotherImage: 'Convertir otra imagen', subtitleAdd: '+ Añadir subtítulos SRT', subtitleOptional: '(opcional)', subtitleRemove: 'Quitar subtítulos', processed: 'Procesado', analyzing: 'Analizando…', compressing: 'Comprimiendo…', finishing: 'Finalizando…', smaller: 'más pequeño', failed: 'La conversión no pudo completarse.',
     converters: {
       mp4: { defaultProfile: 'quality', dropTitle: 'Convierte videos a MP4', dropHint: 'arrastra un video o haz clic para abrir', action: 'Convertir a MP4', format: 'MP4', profiles: [{ id: 'quality', name: 'Alta calidad', detail: 'Misma resolución' }, { id: 'light', name: 'Liviana', detail: 'Máx. 720p · audio HQ' }] },
       mp3: { defaultProfile: 'high', dropTitle: 'Arrastra un audio o video', dropHint: 'convierte audio o extráelo de un video', action: 'Convertir a MP3', format: 'MP3', profiles: [{ id: 'high', name: 'Alta calidad', detail: '320 kbps' }, { id: 'light', name: 'Liviana', detail: '128 kbps' }] },
-      jpg: { defaultProfile: 'high', dropTitle: 'Convierte imágenes a JPG', dropHint: 'JPG · PNG · WEBP · BMP · TIFF', action: 'Convertir a JPG', format: 'JPG', profiles: [{ id: 'high', name: 'Alta calidad', detail: 'Dimensiones originales' }, { id: 'light', name: 'Liviana', detail: 'Máx. 1280 px' }] },
-      pdf: { defaultProfile: 'high', dropTitle: 'Convierte archivos a PDF', dropHint: 'JPG · PDF · DOC · DOCX · TXT · RTF · ODT', action: 'Comprimir PDF', format: 'PDF', profiles: [{ id: 'high', name: 'Alta calidad', detail: 'Mejor calidad' }, { id: 'light', name: 'Liviana', detail: 'Archivo más pequeño' }] },
-      pdfpro: { defaultProfile: 'edit', dropTitle: 'Edita y organiza un PDF', dropHint: 'abre un documento para comenzar', action: 'Guardar una copia', format: 'PDF', profiles: [] }
+      jpg: { defaultProfile: 'high', dropTitle: 'Convierte imágenes a JPG', dropHint: 'JPG · PNG · WEBP · BMP · TIFF', action: 'Convertir a JPG', format: 'JPG', profiles: [{ id: 'high', name: 'Alta calidad', detail: 'Dimensiones originales' }, { id: 'light', name: 'Liviana', detail: 'Máx. 1280 px' }] }
     }
   },
   en: {
-    converterTabs: 'Conversion type', tabNames: { mp4: 'MP4', mp3: 'MP3', jpg: 'JPG', pdf: 'PDF', pdfpro: 'PDF PRO' }, language: 'Language', switchLanguage: 'Switch to Spanish', lightTheme: 'Switch to light mode', darkTheme: 'Switch to dark mode',
+    converterTabs: 'Conversion type', tabNames: { mp4: 'MP4', mp3: 'MP3', jpg: 'JPG' }, language: 'Language', switchLanguage: 'Switch to Spanish', lightTheme: 'Switch to light mode', darkTheme: 'Switch to dark mode',
     original: 'Original', remove: 'Remove file', quality: 'Output quality', estimate: 'Estimated', estimateTitle: 'Estimated final size; may vary depending on the content',
-    preparing: 'Preparing…', ready: 'Ready', cancel: 'Cancel', reveal: 'Show in Finder', saveAs: 'Save As…', anotherPdf: 'Compress Another PDF', anotherDocument: 'Convert Another Document', anotherImage: 'Convert Another JPG', docAction: 'Convert to PDF', imageAction: 'Convert JPG to PDF', subtitleAdd: '+ Add SRT subtitles', subtitleOptional: '(optional)', subtitleRemove: 'Remove subtitles', originalSize: 'Original', compressedSize: 'Compressed', reduction: 'Reduction', estimatedQuality: 'Estimated quality', processed: 'Processed', analyzing: 'Analyzing…', compressing: 'Compressing…', finishing: 'Finishing…', smaller: 'smaller', failed: 'The conversion could not be completed.',
+    preparing: 'Preparing…', ready: 'Ready', cancel: 'Cancel', reveal: 'Show in Folder', another: 'Convert Another', anotherImage: 'Convert More Images', subtitleAdd: '+ Add SRT subtitles', subtitleOptional: '(optional)', subtitleRemove: 'Remove subtitles', processed: 'Processed', analyzing: 'Analyzing…', compressing: 'Compressing…', finishing: 'Finishing…', smaller: 'smaller', failed: 'The conversion could not be completed.',
     converters: {
       mp4: { defaultProfile: 'quality', dropTitle: 'Convert videos to MP4', dropHint: 'drop a video or click to browse', action: 'Convert to MP4', format: 'MP4', profiles: [{ id: 'quality', name: 'High quality', detail: 'Same resolution' }, { id: 'light', name: 'Lightweight', detail: 'Max. 720p · HQ audio' }] },
       mp3: { defaultProfile: 'high', dropTitle: 'Drop an audio file or video', dropHint: 'convert audio or extract it from video', action: 'Convert to MP3', format: 'MP3', profiles: [{ id: 'high', name: 'High quality', detail: '320 kbps' }, { id: 'light', name: 'Lightweight', detail: '128 kbps' }] },
-      jpg: { defaultProfile: 'high', dropTitle: 'Convert images to JPG', dropHint: 'JPG · PNG · WEBP · BMP · TIFF', action: 'Convert to JPG', format: 'JPG', profiles: [{ id: 'high', name: 'High quality', detail: 'Original dimensions' }, { id: 'light', name: 'Lightweight', detail: 'Max. 1280 px' }] },
-      pdf: { defaultProfile: 'high', dropTitle: 'Convert files to PDF', dropHint: 'JPG · PDF · DOC · DOCX · TXT · RTF · ODT', action: 'Compress PDF', format: 'PDF', profiles: [{ id: 'high', name: 'High quality', detail: 'Best quality' }, { id: 'light', name: 'Lightweight', detail: 'Smallest file' }] },
-      pdfpro: { defaultProfile: 'edit', dropTitle: 'Edit and organize a PDF', dropHint: 'open a document to begin', action: 'Save a copy', format: 'PDF', profiles: [] }
+      jpg: { defaultProfile: 'high', dropTitle: 'Convert images to JPG', dropHint: 'JPG · PNG · WEBP · BMP · TIFF', action: 'Convert to JPG', format: 'JPG', profiles: [{ id: 'high', name: 'High quality', detail: 'Original dimensions' }, { id: 'light', name: 'Lightweight', detail: 'Max. 1280 px' }] }
     }
   }
 };
@@ -32,7 +28,7 @@ if (window.pantoraya.platform === 'win32') {
 }
 
 const savedLanguage = localStorage.getItem('pantoraya-language');
-const state = { language: COPY[savedLanguage] ? savedLanguage : 'es', converter: 'mp4', file: null, files: [], subtitle: null, profile: 'quality', converting: false, cancelRequested: false, activeIndex: 0, completedCount: 0, outputPath: null, outputPaths: [], suggestedOutputPath: null, pdfSaved: false };
+const state = { language: COPY[savedLanguage] ? savedLanguage : 'es', converter: 'mp4', file: null, files: [], subtitle: null, profile: 'quality', converting: false, cancelRequested: false, activeIndex: 0, completedCount: 0, outputPath: null, outputPaths: [] };
 const $ = (id) => document.getElementById(id);
 const dropZone = $('dropZone');
 const fileCard = $('fileCard');
@@ -51,14 +47,6 @@ function copy() {
   return COPY[state.language];
 }
 
-function isDocumentFile() {
-  return state.converter === 'pdf' && state.file?.mediaType === 'document';
-}
-
-function isImageToPdf() {
-  return state.converter === 'pdf' && state.file?.mediaType === 'image';
-}
-
 function currentAction() {
   if (state.files.length > 1) {
     const format = currentConverter().format;
@@ -66,7 +54,7 @@ function currentAction() {
       ? `Convertir ${state.files.length} archivos a ${format}`
       : `Convert ${state.files.length} files to ${format}`;
   }
-  return isDocumentFile() ? copy().docAction : isImageToPdf() ? copy().imageAction : currentConverter().action;
+  return currentConverter().action;
 }
 
 function resetSubtitle() {
@@ -91,8 +79,6 @@ function estimatedFileBytes(file, profileId) {
     const scale = width && height ? Math.min(1, 1280 / width, 720 / height) : 1;
     return size * Math.min(0.65, 0.42 * Math.max(0.18, scale ** 2));
   }
-
-  if (state.converter === 'pdf') return size * (profileId === 'high' ? 0.8 : 0.45);
 
   const extension = name.split('.').pop()?.toLowerCase();
   const isAlreadyJpeg = extension === 'jpg' || extension === 'jpeg';
@@ -142,13 +128,10 @@ function renderProfiles() {
 }
 
 function resetFile() {
-  if (state.converter === 'pdf' && state.outputPath) window.pantoraya.discardOutput(state.outputPath).catch(() => {});
   state.file = null;
   state.files = [];
   state.outputPath = null;
   state.outputPaths = [];
-  state.suggestedOutputPath = null;
-  state.pdfSaved = false;
   resetSubtitle();
   $('subtitlePicker').classList.add('hidden');
   document.body.classList.remove('has-subtitle-option');
@@ -162,7 +145,6 @@ function resetFile() {
   dropZone.classList.remove('hidden');
   $('progressPanel').classList.add('hidden');
   $('resultPanel').classList.add('hidden');
-  $('pdfResultPanel').classList.add('hidden');
   cancelButton.classList.add('hidden');
   anotherButton.classList.add('hidden');
   revealButton.classList.add('hidden');
@@ -170,21 +152,13 @@ function resetFile() {
   convertButton.disabled = true;
   $('profilesSection').classList.remove('hidden');
   convertButton.textContent = currentAction();
-  anotherButton.textContent = copy().anotherPdf;
+  anotherButton.textContent = copy().another;
   renderProfiles();
   setError();
 }
 
 function selectConverter(converterId) {
   if (!copy().converters[converterId] || state.converting || converterId === state.converter) return;
-  if (state.converter === 'pdfpro' && converterId !== 'pdfpro') {
-    Promise.resolve(window.pdfPro?.requestLeave?.() ?? true).then((canLeave) => {
-      if (!canLeave) return;
-      state.converter = '__leaving_pdfpro__';
-      selectConverter(converterId);
-    });
-    return;
-  }
   state.converter = converterId;
   state.profile = currentConverter().defaultProfile;
   document.querySelectorAll('[data-converter]').forEach((tab) => {
@@ -193,16 +167,6 @@ function selectConverter(converterId) {
     tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
     tab.tabIndex = isActive ? 0 : -1;
   });
-  if (converterId === 'pdfpro') {
-    document.body.classList.add('pdf-pro-mode');
-    $('pdfProSection').classList.remove('hidden');
-    window.pantoraya.setWindowMode('pdf-pro').catch(() => {});
-    window.pdfPro?.enter();
-    return;
-  }
-  document.body.classList.remove('pdf-pro-mode');
-  $('pdfProSection').classList.add('hidden');
-  window.pantoraya.setWindowMode('compact').catch(() => {});
   $('dropTitle').textContent = currentConverter().dropTitle;
   $('dropHint').textContent = currentConverter().dropHint;
   dropZone.setAttribute('aria-label', currentConverter().dropTitle);
@@ -242,19 +206,13 @@ function applyLanguage(language) {
   $('subtitleRemove').setAttribute('aria-label', copy().subtitleRemove);
   $('profilesSection').setAttribute('aria-label', copy().quality);
   $('resultTitle').textContent = copy().ready;
-  $('pdfResultTitle').textContent = copy().ready;
-  $('pdfOriginalLabel').textContent = copy().originalSize;
-  $('pdfCompressedLabel').textContent = copy().compressedSize;
-  $('pdfReductionLabel').textContent = copy().reduction;
-  $('pdfQualityLabel').textContent = copy().estimatedQuality;
   cancelButton.textContent = copy().cancel;
-  anotherButton.textContent = isDocumentFile() ? copy().anotherDocument : isImageToPdf() ? copy().anotherImage : copy().anotherPdf;
-  revealButton.textContent = state.converter === 'pdf' && document.body.classList.contains('is-complete') && !state.pdfSaved ? copy().saveAs : copy().reveal;
+  anotherButton.textContent = copy().another;
+  revealButton.textContent = copy().reveal;
   convertButton.textContent = currentAction();
   if (!state.converting) $('progressLabel').textContent = copy().preparing;
   renderProfiles();
   applyTheme(localStorage.getItem('pantoraya-theme') || 'dark');
-  window.pdfPro?.setLanguage(language);
   window.pantoraya.setLanguage(language).catch(() => {});
 }
 
@@ -278,27 +236,23 @@ function setError(message = '') {
 }
 
 function setFile(file, files = [file]) {
-  const extension = file.name.split('.').pop()?.toLowerCase();
-  const keepImageInPdf = state.converter === 'pdf' && file.mediaType === 'image' && ['jpg', 'jpeg'].includes(extension);
   const detectedConverter = file.mediaType === 'audio'
     ? 'mp3'
-    : file.mediaType === 'image' && !keepImageInPdf ? 'jpg' : ['pdf', 'document'].includes(file.mediaType) || keepImageInPdf ? 'pdf' : state.converter === 'mp3' ? 'mp3' : 'mp4';
+    : file.mediaType === 'image' ? 'jpg' : (file.mediaType === 'video' ? 'mp4' : state.converter);
   if (detectedConverter !== state.converter) selectConverter(detectedConverter);
 
   files = files.filter((item) => {
     if (state.converter === 'mp4') return item.mediaType === 'video';
     if (state.converter === 'mp3') return item.mediaType === 'video' || item.mediaType === 'audio';
     if (state.converter === 'jpg') return item.mediaType === 'image';
-    const itemExtension = item.name.split('.').pop()?.toLowerCase();
-    return item.mediaType === 'pdf' || item.mediaType === 'document' || (item.mediaType === 'image' && ['jpg', 'jpeg'].includes(itemExtension));
+    return false;
   });
-  if (state.converter === 'pdf') files = files.filter((item) => item.mediaType === files[0]?.mediaType);
   if (!files.length) return;
   file = files[0];
 
   state.file = file;
   state.files = files;
-  state.profile = file.mediaType === 'document' ? 'document' : isImageToPdf() ? 'image' : currentConverter().defaultProfile;
+  state.profile = currentConverter().defaultProfile;
   state.outputPath = null;
   document.body.classList.remove('is-processing', 'is-complete');
   $('fileName').textContent = files.length > 1 ? `${file.name}  +${files.length - 1}` : file.name;
@@ -320,17 +274,15 @@ function setFile(file, files = [file]) {
   $('subtitlePicker').classList.toggle('hidden', !showSubtitlePicker);
   document.body.classList.toggle('has-subtitle-option', showSubtitlePicker);
   if (!showSubtitlePicker) resetSubtitle();
-  $('profilesSection').classList.toggle('hidden', file.mediaType === 'document' || isImageToPdf());
-  $('fileMark').dataset.format = file.mediaType === 'document' ? 'DOC' : currentConverter().format;
+  $('fileMark').dataset.format = currentConverter().format;
   $('resultPanel').classList.add('hidden');
-  $('pdfResultPanel').classList.add('hidden');
   anotherButton.classList.add('hidden');
   revealButton.classList.add('hidden');
   convertButton.classList.remove('hidden');
   convertButton.disabled = false;
   convertButton.textContent = currentAction();
-  anotherButton.textContent = file.mediaType === 'document' ? copy().anotherDocument : isImageToPdf() ? copy().anotherImage : copy().anotherPdf;
-  if (file.mediaType !== 'document' && !isImageToPdf()) renderProfiles();
+  anotherButton.textContent = state.converter === 'jpg' && files.length > 1 ? copy().anotherImage : copy().another;
+  renderProfiles();
   setError();
 }
 
@@ -475,7 +427,7 @@ convertButton.addEventListener('click', async () => {
           state.converter,
           state.profile,
           state.files.length === 1 ? state.subtitle?.path || null : null,
-          { outputDirectory: destination.path, directOutput: true }
+          { outputDirectory: destination.path }
         );
         results.push(result);
         state.outputPaths.push(result.outputPath);
@@ -495,44 +447,24 @@ convertButton.addEventListener('click', async () => {
     if (!results.length) throw errors[0] || new Error(copy().failed);
     const result = results[0];
     state.outputPath = result.outputPath;
-    state.suggestedOutputPath = null;
-    state.pdfSaved = true;
     document.body.classList.remove('is-processing');
     document.body.classList.add('is-complete');
     $('progressPanel').classList.add('hidden');
     cancelButton.classList.add('hidden');
     revealButton.classList.remove('hidden');
+    revealButton.textContent = copy().reveal;
     const inputBytes = results.reduce((total, item) => total + item.inputBytes, 0);
     const outputBytes = results.reduce((total, item) => total + item.outputBytes, 0);
     const delta = inputBytes ? Math.round((1 - outputBytes / inputBytes) * 100) : 0;
+    $('resultPanel').classList.remove('hidden');
     if (state.files.length > 1) {
-      $('resultPanel').classList.remove('hidden');
       $('resultDetails').textContent = `${results.length}/${state.files.length} · ${formatBytes(outputBytes)}`;
-      revealButton.textContent = copy().reveal;
       if (errors.length) setError(errors[0].message || copy().failed);
-    } else if (isImageToPdf()) {
-      $('resultPanel').classList.remove('hidden');
-      $('resultDetails').textContent = formatBytes(result.outputBytes);
-      revealButton.textContent = copy().reveal;
-      anotherButton.classList.remove('hidden');
-    } else if (state.converter === 'pdf' && !isDocumentFile()) {
-      $('pdfOriginalSize').textContent = formatBytes(result.inputBytes);
-      $('pdfCompressedSize').textContent = formatBytes(result.outputBytes);
-      $('pdfReduction').textContent = `${Math.max(0, delta)}%`;
-      $('pdfQuality').textContent = currentConverter().profiles.find((profile) => profile.id === state.profile)?.name || '';
-      $('pdfResultPanel').classList.remove('hidden');
-      revealButton.textContent = copy().reveal;
-      anotherButton.classList.remove('hidden');
-    } else if (isDocumentFile()) {
-      $('resultPanel').classList.remove('hidden');
-      $('resultDetails').textContent = formatBytes(result.outputBytes);
-      revealButton.textContent = copy().reveal;
-      anotherButton.classList.remove('hidden');
     } else {
-      $('resultPanel').classList.remove('hidden');
       $('resultDetails').textContent = `${formatBytes(result.outputBytes)}${delta > 0 ? ` · ${delta}% ${copy().smaller}` : ''}`;
-      revealButton.textContent = copy().reveal;
     }
+    if (state.converter === 'jpg') anotherButton.classList.remove('hidden');
+    anotherButton.textContent = state.converter === 'jpg' && state.files.length > 1 ? copy().anotherImage : copy().another;
   } catch (error) {
     document.body.classList.remove('is-processing', 'is-complete');
     $('progressPanel').classList.add('hidden');
@@ -551,15 +483,5 @@ cancelButton.addEventListener('click', async () => {
 anotherButton.addEventListener('click', resetFile);
 revealButton.addEventListener('click', async () => {
   if (!state.outputPath) return;
-  try {
-    if (state.converter === 'pdf' && !state.pdfSaved) {
-      const savedPath = await window.pantoraya.saveOutputAs(state.outputPath, state.suggestedOutputPath);
-      if (savedPath) {
-        state.outputPath = savedPath;
-        state.suggestedOutputPath = null;
-        state.pdfSaved = true;
-        revealButton.textContent = copy().reveal;
-      }
-    } else window.pantoraya.showInFolder(state.outputPath);
-  } catch (error) { setError(error.message || copy().failed); }
+  window.pantoraya.showInFolder(state.outputPath);
 });
