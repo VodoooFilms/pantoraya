@@ -120,10 +120,12 @@ function mediaTypeForFile(filePath) {
 }
 
 function uniqueOutputPath(inputPath, converter, profile, outputDirectory = null) {
-  const directory = outputDirectory || path.dirname(inputPath);
-  const name = path.basename(inputPath, path.extname(inputPath));
-  const suffix = profile.suffix[currentLanguage];
-  let candidate = path.join(directory, `${name}${suffix}${converter.outputExtension}`);
+ const directory = outputDirectory || path.dirname(inputPath);
+ const name = path.basename(inputPath, path.extname(inputPath));
+ const inputExt = path.extname(inputPath).toLowerCase();
+ const sameExtension = inputExt === converter.outputExtension;
+ const suffix = sameExtension ? '' : (profile.suffix[currentLanguage] || '');
+ let candidate = path.join(directory, `${name}${suffix}${converter.outputExtension}`);
   let count = 2;
   while (fs.existsSync(candidate)) {
     candidate = path.join(directory, `${name}${suffix}-${count}${converter.outputExtension}`);
