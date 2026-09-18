@@ -238,7 +238,7 @@ function setError(message = '') {
 function setFile(file, files = [file]) {
   const detectedConverter = file.mediaType === 'audio'
     ? 'mp3'
-    : file.mediaType === 'image' ? 'jpg' : (file.mediaType === 'video' ? 'mp4' : state.converter);
+    : file.mediaType === 'image' ? 'jpg' : (file.mediaType === 'video' && state.converter !== 'mp3' ? 'mp4' : state.converter);
   if (detectedConverter !== state.converter) selectConverter(detectedConverter);
 
   files = files.filter((item) => {
