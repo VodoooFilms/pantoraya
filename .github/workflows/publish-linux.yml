@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build Debian package
-        run: npm run build:linux
+        run: npm run build:linux -- --publish never
       - name: Upload Linux package to the existing release
         env:
           GH_TOKEN: ${{ github.token }}
