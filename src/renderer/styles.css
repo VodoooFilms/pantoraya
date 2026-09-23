@@ -81,6 +81,10 @@ button { font: inherit; }
   flex-direction: column;
 }
 
+.linux .window-drag-region { display: none; }
+.linux .shell { padding-top: 12px; padding-bottom: 10px; }
+.linux .actions { margin-top: auto; }
+
 .masthead {
   height: 21px;
   display: flex;

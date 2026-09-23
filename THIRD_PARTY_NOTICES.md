@@ -16,3 +16,6 @@ distributed in its `Resources/licenses` directory.
 
 The Windows build downloads the pinned ShareX FFmpeg archive and its GPL text with
 SHA-256 verification through `npm run prepare:windows`.
+
+The Linux Debian package depends on the distribution's `ffmpeg` package. It does not
+bundle an FFmpeg executable; the distribution provides its licenses and source.

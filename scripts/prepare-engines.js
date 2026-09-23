@@ -8,6 +8,8 @@ if (process.platform === 'win32') {
   execFileSync(npm, ['run', 'prepare:windows'], { cwd: projectRoot, stdio: 'inherit' });
 } else if (process.platform === 'darwin') {
   execFileSync(npm, ['run', 'build:ffmpeg'], { cwd: projectRoot, stdio: 'inherit' });
+} else if (process.platform === 'linux') {
+  execFileSync(npm, ['run', 'prepare:linux'], { cwd: projectRoot, stdio: 'inherit' });
 } else {
-  throw new Error('Pantoraya currently supports macOS and Windows.');
+  throw new Error('Pantoraya currently supports macOS, Windows and Linux.');
 }

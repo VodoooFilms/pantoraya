@@ -5,7 +5,7 @@
 <h1 align="center">Pantoraya</h1>
 
 <p align="center">
-  Conversión privada de archivos para macOS y Windows · Private file conversion for macOS and Windows<br>
+  Conversión privada de archivos para macOS, Windows y Linux · Private file conversion for macOS, Windows and Linux<br>
   Video, audio e imágenes procesados localmente · Video, audio, and images processed locally
 </p>
 
@@ -18,7 +18,7 @@
 
 ## Español
 
-Pantoraya es un conversor gratuito, pequeño y de código abierto para macOS y Windows. Arrastra un archivo y la aplicación seleccionará automáticamente el espacio correcto: MP4 para video, MP3 para audio o JPG para imágenes.
+Pantoraya es un conversor gratuito, pequeño y de código abierto para macOS, Windows y Linux. Arrastra un archivo y la aplicación seleccionará automáticamente el espacio correcto: MP4 para video, MP3 para audio o JPG para imágenes.
 
 Todo se procesa de forma privada en tu computadora. No hay cuentas, suscripciones, publicidad, analítica ni cargas a la nube.
 
@@ -45,11 +45,13 @@ Todo se procesa de forma privada en tu computadora. No hay cuentas, suscripcione
 
 ### Cómo añadir subtítulos SRT
 
-La opción SRT está disponible tanto en macOS como en Windows. Selecciona el espacio **MP4** y carga un archivo de video; entonces aparecerá **+ Añadir subtítulos SRT (opcional)**. Selecciona o arrastra un archivo `.srt` y convierte el video. Pantoraya incorpora los subtítulos como una pista opcional dentro del MP4, por lo que puedes activarla o desactivarla desde el reproductor.
+La opción SRT está disponible en macOS, Windows y Linux. Selecciona el espacio **MP4** y carga un archivo de video; entonces aparecerá **+ Añadir subtítulos SRT (opcional)**. Selecciona o arrastra un archivo `.srt` y convierte el video. Pantoraya incorpora los subtítulos como una pista opcional dentro del MP4, por lo que puedes activarla o desactivarla desde el reproductor.
 
 ### Instalar
 
-Pantoraya es compatible con Windows 10/11 de 64 bits y con Macs Apple Silicon que ejecuten macOS 13.4 o posterior.
+Pantoraya es compatible con Windows 10/11 de 64 bits, Macs Apple Silicon con macOS 13.4 o posterior y distribuciones Linux de 64 bits basadas en Debian o Ubuntu.
+
+En Linux, descarga [`Pantoraya-1.3.0-amd64.deb`](https://github.com/VodoooFilms/pantoraya/releases/download/v1.3.0/Pantoraya-1.3.0-amd64.deb) e instálalo con `sudo apt install ./Pantoraya-1.3.0-amd64.deb`. FFmpeg se instalará como dependencia. Abre Pantoraya desde el menú de aplicaciones o ejecuta `pantoraya`.
 
 En Windows, descarga y ejecuta `Pantoraya-1.3.0-x64.exe`. El instalador permite elegir la carpeta y crea accesos directos. La conversión multimedia y de imágenes funciona con los motores incluidos. Las compilaciones comunitarias de Windows aún no están firmadas, por lo que SmartScreen puede mostrar una advertencia.
 
@@ -67,7 +69,7 @@ También está disponible una [edición independiente del README en español](RE
 
 ## English
 
-Pantoraya is a small, free, open-source file converter for macOS and Windows. Drop a file into the app and it automatically chooses the correct workspace: MP4 for video, MP3 for audio, or JPG for images.
+Pantoraya is a small, free, open-source file converter for macOS, Windows and Linux. Drop a file into the app and it automatically chooses the correct workspace: MP4 for video, MP3 for audio, or JPG for images.
 
 Everything is processed privately on your computer. There are no accounts, subscriptions, ads, analytics, or cloud uploads.
 
@@ -94,11 +96,15 @@ Everything is processed privately on your computer. There are no accounts, subsc
 
 ### How to add SRT subtitles
 
-SRT support is available on both macOS and Windows. Select the **MP4** workspace and load a video file; **+ Add SRT subtitles (optional)** will then appear. Select or drop an `.srt` file and convert the video. Pantoraya embeds the subtitles as an optional MP4 track, so you can turn them on or off in your media player.
+SRT support is available on macOS, Windows and Linux. Select the **MP4** workspace and load a video file; **+ Add SRT subtitles (optional)** will then appear. Select or drop an `.srt` file and convert the video. Pantoraya embeds the subtitles as an optional MP4 track, so you can turn them on or off in your media player.
 
 ### Install
 
-Pantoraya supports 64-bit Windows 10/11 and Apple Silicon Macs running macOS 13.4 or later.
+Pantoraya supports 64-bit Windows 10/11, Apple Silicon Macs running macOS 13.4 or later, and 64-bit Debian or Ubuntu based Linux distributions.
+
+On Linux, download [`Pantoraya-1.3.0-amd64.deb`](https://github.com/VodoooFilms/pantoraya/releases/download/v1.3.0/Pantoraya-1.3.0-amd64.deb) and install it with `sudo apt install ./Pantoraya-1.3.0-amd64.deb`. FFmpeg is installed as a dependency. Launch Pantoraya from the application menu or run `pantoraya`.
+
+For a user-only installation without administrator access, install FFmpeg first, then run `bash scripts/install-linux-local.sh` after building the `.deb`.
 
 On Windows, download and run `Pantoraya-1.3.0-x64.exe`. The setup wizard lets you choose the install directory and creates shortcuts. Media and image conversion use bundled engines. Community Windows builds are not code-signed yet, so SmartScreen may display a warning.
 
@@ -132,9 +138,16 @@ Crear el instalador de Windows x64 / Build the Windows x64 installer:
 npm run build:win
 ```
 
-Pantoraya compila un motor FFmpeg estático desde fuentes oficiales verificadas por checksum.
+Crear el paquete Debian/Ubuntu x64 / Build the Debian/Ubuntu x64 package:
 
-Pantoraya builds a static FFmpeg engine from checksum-verified upstream sources.
+```bash
+sudo apt install ffmpeg
+npm run build:linux
+```
+
+En macOS, Pantoraya compila un motor FFmpeg estático desde fuentes oficiales verificadas por checksum. En Linux usa el paquete FFmpeg del sistema.
+
+On macOS, Pantoraya builds a static FFmpeg engine from checksum-verified upstream sources. On Linux, it uses the system FFmpeg package.
 
 ## Colaboradores / Contributors
 

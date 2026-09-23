@@ -10,7 +10,7 @@ let currentLanguage = 'es';
 
 const TEXT = {
   es: {
-    about: 'Acerca de Pantoraya', aboutCredit: 'Pantoraya es un conversor gratuito y de código abierto para macOS y Windows. Convierte video a MP4, extrae y comprime audio en MP3 y optimiza imágenes JPG. Todo ocurre de forma privada y local, sin cuentas, anuncios ni cargas a la nube.', hide: 'Ocultar Pantoraya', hideOthers: 'Ocultar otras', unhide: 'Mostrar todo', quit: 'Salir de Pantoraya',
+    about: 'Acerca de Pantoraya', aboutCredit: 'Pantoraya es un conversor gratuito y de código abierto para macOS, Windows y Linux. Convierte video a MP4, extrae y comprime audio en MP3 y optimiza imágenes JPG. Todo ocurre de forma privada y local, sin cuentas, anuncios ni cargas a la nube.', hide: 'Ocultar Pantoraya', hideOthers: 'Ocultar otras', unhide: 'Mostrar todo', quit: 'Salir de Pantoraya',
     edit: 'Edición', undo: 'Deshacer', redo: 'Rehacer', cut: 'Cortar', copy: 'Copiar', paste: 'Pegar', selectAll: 'Seleccionar todo',
     window: 'Ventana', minimize: 'Minimizar', zoom: 'Zoom', front: 'Traer todo al frente',
     selectTitle: 'Selecciona uno o varios archivos', outputFolderTitle: 'Selecciona la carpeta de salida', compatible: 'Archivos compatibles', videos: 'Videos', audio: 'Audio', images: 'Imágenes',
@@ -19,7 +19,7 @@ const TEXT = {
     quality: 'Alta calidad', light: 'Liviana', converting: 'Convirtiendo', startError: 'No se pudo iniciar FFmpeg', cancelled: 'Conversión cancelada.', ffmpegExit: 'FFmpeg terminó con código'
   },
   en: {
-    about: 'About Pantoraya', aboutCredit: 'Pantoraya is a free, open-source converter for macOS and Windows. It converts video to MP4, extracts and compresses audio as MP3, and optimizes JPG images. Everything happens privately and locally, with no accounts, ads, or cloud uploads.', hide: 'Hide Pantoraya', hideOthers: 'Hide Others', unhide: 'Show All', quit: 'Quit Pantoraya',
+    about: 'About Pantoraya', aboutCredit: 'Pantoraya is a free, open-source converter for macOS, Windows and Linux. It converts video to MP4, extracts and compresses audio as MP3, and optimizes JPG images. Everything happens privately and locally, with no accounts, ads, or cloud uploads.', hide: 'Hide Pantoraya', hideOthers: 'Hide Others', unhide: 'Show All', quit: 'Quit Pantoraya',
     edit: 'Edit', undo: 'Undo', redo: 'Redo', cut: 'Cut', copy: 'Copy', paste: 'Paste', selectAll: 'Select All',
     window: 'Window', minimize: 'Minimize', zoom: 'Zoom', front: 'Bring All to Front',
     selectTitle: 'Select one or more files', outputFolderTitle: 'Select the output folder', compatible: 'Compatible files', videos: 'Videos', audio: 'Audio', images: 'Images',
@@ -94,13 +94,17 @@ const CONVERTERS = {
 
 function getFfmpegPath() {
   const executable = process.platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
-  const candidates = app.isPackaged
-    ? [path.join(process.resourcesPath, 'ffmpeg', executable)]
-    : process.platform === 'win32'
-      ? [path.join(__dirname, '../../build/windows/ffmpeg.exe'), 'ffmpeg.exe']
-      : [path.join(__dirname, '../../build/ffmpeg/ffmpeg'), '/opt/homebrew/bin/ffmpeg', '/usr/local/bin/ffmpeg'];
+  const candidates = process.platform === 'linux'
+    ? ['/usr/bin/ffmpeg', '/usr/local/bin/ffmpeg']
+    : app.isPackaged
+      ? [path.join(process.resourcesPath, 'ffmpeg', executable)]
+      : process.platform === 'win32'
+        ? [path.join(__dirname, '../../build/windows/ffmpeg.exe')]
+        : [path.join(__dirname, '../../build/ffmpeg/ffmpeg'), '/opt/homebrew/bin/ffmpeg', '/usr/local/bin/ffmpeg'];
 
-  return candidates.find((candidate) => candidate && fs.existsSync(candidate)) || null;
+  return candidates.find((candidate) => {
+    try { fs.accessSync(candidate, fs.constants.X_OK); return true; } catch (_) { return false; }
+  }) || null;
 }
 
 function getConverter(converterId) {
@@ -185,12 +189,46 @@ async function thumbnailForFile(filePath, mediaType, media) {
   }
 
   const targetSize = fittedThumbnailSize(media.width, media.height);
+  if (process.platform === 'linux') return ffmpegThumbnailForFile(filePath, targetSize);
   return Promise.race([
     nativeImage.createThumbnailFromPath(filePath, targetSize)
       .then((thumbnail) => thumbnail.isEmpty() ? null : thumbnail.toDataURL())
       .catch(() => null),
     new Promise((resolve) => setTimeout(() => resolve(null), 3000))
   ]);
+}
+
+function ffmpegThumbnailForFile(filePath, size) {
+  const ffmpegPath = getFfmpegPath();
+  if (!ffmpegPath) return Promise.resolve(null);
+  return new Promise((resolve) => {
+    const chunks = [];
+    let totalBytes = 0;
+    let settled = false;
+    const child = spawn(ffmpegPath, [
+      '-hide_banner', '-loglevel', 'error', '-i', filePath,
+      '-frames:v', '1', '-vf', `scale=${size.width}:${size.height}:force_original_aspect_ratio=decrease`,
+      '-f', 'image2pipe', '-vcodec', 'png', 'pipe:1'
+    ], { stdio: ['ignore', 'pipe', 'ignore'] });
+    const finish = (thumbnail = null) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve(thumbnail);
+    };
+    const timer = setTimeout(() => { child.kill('SIGTERM'); finish(); }, 3000);
+    child.stdout.on('data', (chunk) => {
+      totalBytes += chunk.length;
+      if (totalBytes > 8 * 1024 * 1024) { child.kill('SIGTERM'); finish(); }
+      else chunks.push(chunk);
+    });
+    child.on('error', () => finish());
+    child.on('close', (code) => {
+      if (code !== 0 || !chunks.length || settled) return finish();
+      const thumbnail = nativeImage.createFromBuffer(Buffer.concat(chunks));
+      finish(thumbnail.isEmpty() ? null : thumbnail.toDataURL());
+    });
+  });
 }
 
 async function fileDetails(filePath) {
@@ -225,6 +263,14 @@ function playCompletionSound() {
     sound.unref();
     return;
   }
+  if (process.platform === 'linux') {
+    const player = '/usr/bin/canberra-gtk-play';
+    if (!fs.existsSync(player)) return;
+    const sound = spawn(player, ['-i', 'complete', '-V', '-9.0'], { detached: true, stdio: 'ignore' });
+    sound.on('error', () => {});
+    sound.unref();
+    return;
+  }
   const soundPath = '/System/Library/Sounds/Tink.aiff';
   if (!fs.existsSync(soundPath)) return;
   const sound = spawn('/usr/bin/afplay', ['-v', '0.35', soundPath], { detached: true, stdio: 'ignore' });
@@ -246,17 +292,22 @@ async function requestInitialFolderPermissions() {
 
 function createWindow() {
   const isMac = process.platform === 'darwin';
+  const windowHeight = process.platform === 'linux' ? 350 : 400;
+  const linuxIcon = process.platform === 'linux'
+    ? nativeImage.createFromPath(path.join(__dirname, '../../assets/icons/pantoraya.png')).resize({ width: 128, height: 128 })
+    : null;
   mainWindow = new BrowserWindow({
     width: 410,
-    height: 400,
+    height: windowHeight,
     useContentSize: true,
     minWidth: 410,
-    minHeight: 400,
+    minHeight: windowHeight,
     maxWidth: 410,
-    maxHeight: 400,
+    maxHeight: windowHeight,
     resizable: false,
     maximizable: false,
     title: 'Pantoraya',
+    ...(linuxIcon && !linuxIcon.isEmpty() ? { icon: linuxIcon } : {}),
     ...(isMac ? { titleBarStyle: 'hidden', trafficLightPosition: { x: 14, y: 14 } } : {}),
     backgroundColor: '#1d1d1f',
     show: false,
@@ -267,6 +318,8 @@ function createWindow() {
       sandbox: true
     }
   });
+
+  if (linuxIcon && !linuxIcon.isEmpty()) mainWindow.setIcon(linuxIcon);
 
   mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
   const rendererUrl = pathToFileURL(path.join(__dirname, '../renderer/index.html')).href;
@@ -284,7 +337,7 @@ function assertTrustedEvent(event) {
 }
 
 function createMenu() {
-  if (process.platform === 'win32') {
+  if (process.platform !== 'darwin') {
     const es = currentLanguage === 'es';
     Menu.setApplicationMenu(Menu.buildFromTemplate([
       { label: es ? 'Archivo' : 'File', submenu: [{ role: 'quit', label: t('quit') }] },

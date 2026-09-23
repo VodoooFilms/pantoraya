@@ -21,11 +21,12 @@ const COPY = {
   }
 };
 
-if (window.pantoraya.platform === 'win32') {
+if (window.pantoraya.platform !== 'darwin') {
   COPY.es.reveal = 'Mostrar en carpeta';
   COPY.en.reveal = 'Show in Folder';
   document.body.classList.add('windows');
 }
+if (window.pantoraya.platform === 'linux') document.body.classList.add('linux');
 
 const savedLanguage = localStorage.getItem('pantoraya-language');
 const state = { language: COPY[savedLanguage] ? savedLanguage : 'es', converter: 'mp4', file: null, files: [], subtitle: null, profile: 'quality', converting: false, cancelRequested: false, activeIndex: 0, completedCount: 0, outputPath: null, outputPaths: [] };
