@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self'; script-src 'self'; connect-src ipc: http://ipc.localhost">
   <title>Pantoraya</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="window-drag-region" aria-hidden="true"></div>
+  <div class="window-drag-region" data-tauri-drag-region aria-hidden="true"></div>
   <main class="shell">
     <header class="masthead">
       <span class="brand">
@@ -76,6 +76,7 @@
       <button class="primary success hidden" id="revealButton">Mostrar en Finder</button>
     </div>
   </main>
+  <script src="tauri-bridge.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

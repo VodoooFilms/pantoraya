@@ -1,0 +1,9 @@
+{
+  "bundle": {
+    "resources": {
+      "../build/ffmpeg/ffmpeg": "ffmpeg/ffmpeg",
+      "../build/licenses": "licenses",
+      "../THIRD_PARTY_NOTICES.md": "THIRD_PARTY_NOTICES.md"
+    }
+  }
+}

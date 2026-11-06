@@ -120,34 +120,30 @@ Community builds are not notarized. If macOS blocks the first launch, right-clic
 
 ## Desarrollo / Development
 
+La versión actual usa **Rust + Tauri 2**, con una interfaz HTML/CSS/JavaScript y el WebView del sistema. Electron se conserva como implementación anterior. Los instaladores publicados de v1.3.0 corresponden a esa versión anterior; la migración Rust está validada localmente en macOS Apple Silicon. Windows y Linux todavía requieren validar sus paquetes Tauri.
+
+The current implementation uses **Rust + Tauri 2**, an HTML/CSS/JavaScript frontend, and the system WebView. Electron remains as the legacy implementation. Published v1.3.0 installers are from that earlier implementation; the Rust migration is locally validated on Apple Silicon macOS. Tauri packages for Windows and Linux still need validation.
+
+Requisitos / Requirements: Rust stable, Node.js/npm, and the [Tauri platform prerequisites](https://v2.tauri.app/start/prerequisites/). On macOS, install Xcode Command Line Tools and `brew install pkgconf`.
+
 ```bash
-npm install
+npm ci
+npm run prepare:engines
 npm start
 ```
 
-Crear el DMG para Apple Silicon / Build the Apple Silicon DMG:
-
 ```bash
-brew install pkgconf
+npm run check
+npm test
+npm run check:rust
 npm run build
 ```
 
-Crear el instalador de Windows x64 / Build the Windows x64 installer:
+Los artefactos Tauri se generan en `src-tauri/target/release/bundle/`. macOS incluye el FFmpeg estático generado desde fuentes verificadas por checksum. Linux usa FFmpeg del sistema. Consulta [los detalles de la migración](src-tauri/README.md).
 
-```bash
-npm run build:win
-```
+Tauri artifacts are generated in `src-tauri/target/release/bundle/`. macOS bundles the static FFmpeg built from checksum-verified sources. Linux uses system FFmpeg. See [migration details](src-tauri/README.md).
 
-Crear el paquete Debian/Ubuntu x64 / Build the Debian/Ubuntu x64 package:
-
-```bash
-sudo apt install ffmpeg
-npm run build:linux
-```
-
-En macOS, Pantoraya compila un motor FFmpeg estático desde fuentes oficiales verificadas por checksum. En Linux usa el paquete FFmpeg del sistema.
-
-On macOS, Pantoraya builds a static FFmpeg engine from checksum-verified upstream sources. On Linux, it uses the system FFmpeg package.
+Para ejecutar Electron / To run Electron: `npm run start:electron` (after `npm run prepare:engines`). The existing `build:win` and `build:linux` scripts still build legacy Electron packages.
 
 ## Colaboradores / Contributors
 
@@ -160,7 +156,8 @@ Ideas de producto y UX · Product and UX ideas
 
 ## Tecnología / Technology
 
-- Electron
+- Rust + Tauri 2 (backend nativo / native backend)
+- HTML, CSS y JavaScript (interfaz / frontend)
 - FFmpeg, x264, LAME
 - H.264 + AAC, MP3 and MJPEG
 

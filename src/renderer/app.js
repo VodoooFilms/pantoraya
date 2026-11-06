@@ -332,6 +332,32 @@ dropZone.addEventListener('drop', async (event) => {
   catch (error) { setError(error.message); }
 });
 
+// Tauri intercepts native drag & drop and exposes real filesystem paths.
+// The bridge forwards them here so the same renderer works under both runtimes.
+if (window.pantoraya.onFileDrop) {
+  window.pantoraya.onFileDrop(async (paths) => {
+    try {
+      const files = await window.pantoraya.inspectFiles(paths);
+      if (files.length) setFile(files[0], files);
+    } catch (error) { setError(error.message); }
+  });
+}
+if (window.pantoraya.onSubtitleDrop) {
+  window.pantoraya.onSubtitleDrop(async (paths) => {
+    try { setSubtitle(await window.pantoraya.inspectSubtitle(paths[0])); }
+    catch (error) { setError(error.message); }
+  });
+}
+if (window.pantoraya.onDragState) {
+  window.pantoraya.onDragState(({ dragging, position }) => {
+    const ratio = window.devicePixelRatio || 1;
+    const element = position ? document.elementFromPoint(position.x / ratio, position.y / ratio) : null;
+    const overSubtitle = Boolean(element && element.closest && element.closest('#subtitlePicker'));
+    dropZone.classList.toggle('dragging', dragging && !overSubtitle);
+    $('subtitlePicker').classList.toggle('dragging', dragging && overSubtitle);
+  });
+}
+
 function setSubtitle(subtitle) {
   state.subtitle = subtitle;
   $('subtitleFile').textContent = subtitle.name;

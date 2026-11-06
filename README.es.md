@@ -71,33 +71,26 @@ Pantoraya no sube archivos ni necesita conexión a internet. La conversión, ins
 
 ## Desarrollo
 
+La versión actual usa **Rust + Tauri 2** y el WebView del sistema. Electron se conserva como implementación anterior. Los instaladores publicados de v1.3.0 todavía corresponden a Electron. La migración Rust está validada localmente en macOS Apple Silicon; los paquetes Tauri de Windows y Linux requieren validación.
+
+Necesitas Rust estable, Node.js/npm y los [requisitos de Tauri por plataforma](https://v2.tauri.app/start/prerequisites/). En macOS instala Xcode Command Line Tools y `brew install pkgconf`.
+
 ```bash
-npm install
+npm ci
+npm run prepare:engines
 npm start
 ```
 
-Para crear un DMG para Apple Silicon:
-
 ```bash
+npm run check
+npm test
+npm run check:rust
 npm run build
 ```
 
-Para crear el instalador de Windows x64:
+Los instaladores Tauri se generan en `src-tauri/target/release/bundle/`. macOS incluye FFmpeg estático compilado desde fuentes verificadas por checksum. Linux usa FFmpeg del sistema. Consulta [los detalles técnicos](src-tauri/README.md).
 
-```bash
-npm run build:win
-```
-
-Para crear el paquete Debian/Ubuntu x64:
-
-```bash
-sudo apt install ffmpeg
-npm run build:linux
-```
-
-El instalador se genera dentro de `dist/`.
-
-La compilación para macOS necesita Xcode Command Line Tools y `pkg-config`. Pantoraya compila su propio motor FFmpeg estático, verificado por checksum y obtenido de las fuentes oficiales; por eso la primera compilación tarda unos minutos. Instala el pequeño requisito con `brew install pkgconf`. En Linux, usa el paquete FFmpeg del sistema.
+La versión anterior se ejecuta con `npm run start:electron`. Los comandos `build:win` y `build:linux` todavía generan paquetes Electron.
 
 ## Colaboradores
 
@@ -110,7 +103,8 @@ Ideas de producto y UX
 
 ## Tecnología
 
-- Electron
+- Rust + Tauri 2 para el backend nativo
+- HTML, CSS y JavaScript para la interfaz
 - FFmpeg
 - H.264 y AAC para MP4
 - LAME MP3
